@@ -20,6 +20,7 @@ export const CreateTaskSection: React.FC = () => {
   const [assignedPartnerName, setAssignedPartnerName] = useState<string>('Apex Media');
   const [deadline, setDeadline] = useState<string>('2026-05-30');
   const [secretKey, setSecretKey] = useState<string>('');
+  const [taskLink, setTaskLink] = useState<string>('');
   const [bannerUrl, setBannerUrl] = useState<string>(
     'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80'
   );
@@ -48,6 +49,7 @@ export const CreateTaskSection: React.FC = () => {
       status: 'active',
       secretKey: secretKey.trim() ? secretKey.trim().toUpperCase() : undefined,
       bannerUrl: bannerUrl.trim() || undefined,
+      taskLink: taskLink.trim() || undefined,
     });
 
     setCreatedSuccess(true);
@@ -58,6 +60,7 @@ export const CreateTaskSection: React.FC = () => {
     setDescription('');
     setProofInstructions('');
     setSecretKey('');
+    setTaskLink('');
     setCreatedSuccess(false);
   };
 
@@ -283,6 +286,22 @@ export const CreateTaskSection: React.FC = () => {
                 placeholder="e.g., Upload a clear screenshot of order confirmation page."
                 className="w-full px-3.5 py-2 text-xs bg-zinc-50 border border-zinc-200 rounded-lg focus:outline-hidden focus:bg-white"
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
+                Task Link
+              </label>
+              <input
+                type="url"
+                value={taskLink}
+                onChange={(e) => setTaskLink(e.target.value)}
+                placeholder="https://..."
+                className="w-full px-3.5 py-2 text-xs bg-zinc-50 border border-zinc-200 rounded-lg focus:outline-hidden focus:bg-white font-mono"
+              />
+              <span className="text-[11px] text-zinc-500 mt-1 block">
+                The actual task or work URL that will open when the worker clicks it.
+              </span>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

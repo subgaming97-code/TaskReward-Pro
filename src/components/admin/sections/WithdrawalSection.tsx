@@ -10,6 +10,7 @@ import {
   ExternalLink,
   ArrowDownRight,
   ShieldCheck,
+  AlertTriangle,
 } from 'lucide-react';
 
 export const WithdrawalSection: React.FC = () => {
@@ -26,12 +27,17 @@ export const WithdrawalSection: React.FC = () => {
   const filtered = withdrawals.filter((w: WithdrawalRequest) => {
     const matchesStatus = statusFilter === 'all' || w.status === statusFilter;
     const matchesRole = roleFilter === 'all' || w.role === roleFilter;
+    const q = search.toLowerCase().trim();
     const matchesSearch =
-      w.userName.toLowerCase().includes(search.toLowerCase()) ||
-      w.payoutDetails.toLowerCase().includes(search.toLowerCase()) ||
-      (w.transactionRef && w.transactionRef.toLowerCase().includes(search.toLowerCase()));
+      !q ||
+      (w.userName && w.userName.toLowerCase().includes(q)) ||
+      (w.payoutDetails && w.payoutDetails.toLowerCase().includes(q)) ||
+      (w.transactionRef && w.transactionRef.toLowerCase().includes(q));
     return matchesStatus && matchesRole && matchesSearch;
   });
+
+  const [confirmMode, setConfirmMode] = useState<'none' | 'approve' | 'reject'>('none');
+  const [rejectReasonInput, setRejectReasonInput] = useState('Invalid UPI ID or KYC issue');
 
   const activeWithdrawal = withdrawals.find((w: WithdrawalRequest) => w.id === activeProcessId);
 
@@ -39,21 +45,22 @@ export const WithdrawalSection: React.FC = () => {
     setActiveProcessId(id);
     setTransactionRef(`UPI/${Date.now().toString().slice(-8)}/SUCCESS`);
     setAdminNotes('Settled via IMPS payout gateway.');
+    setConfirmMode('none');
+    setRejectReasonInput('Invalid UPI ID or KYC issue');
   };
 
   const handleApprove = () => {
     if (!activeWithdrawal) return;
     processWithdrawal(activeWithdrawal.id, 'completed', transactionRef, adminNotes);
     setActiveProcessId(null);
+    setConfirmMode('none');
   };
 
   const handleReject = () => {
     if (!activeWithdrawal) return;
-    const reason = prompt('Enter rejection reason (Amount will be refunded to user balance):', 'Invalid UPI ID or KYC issue');
-    if (reason !== null) {
-      processWithdrawal(activeWithdrawal.id, 'rejected', undefined, reason);
-      setActiveProcessId(null);
-    }
+    processWithdrawal(activeWithdrawal.id, 'rejected', undefined, rejectReasonInput || 'Invalid UPI ID or KYC issue');
+    setActiveProcessId(null);
+    setConfirmMode('none');
   };
 
   return (
@@ -160,7 +167,7 @@ export const WithdrawalSection: React.FC = () => {
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm text-xs">
-                        ₹{item.amountINR.toLocaleString('en-IN')}
+                        ₹{(Number(item.amountINR ?? 0)).toLocaleString('en-IN')}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
@@ -233,7 +240,7 @@ export const WithdrawalSection: React.FC = () => {
                 Payout Amount
               </span>
               <div className="text-2xl font-black text-emerald-900">
-                ₹{activeWithdrawal.amountINR.toLocaleString('en-IN')}
+                ₹{(Number(activeWithdrawal.amountINR ?? 0)).toLocaleString('en-IN')}
               </div>
               <div className="text-xs text-emerald-800 font-medium">
                 To: {activeWithdrawal.userName} ({activeWithdrawal.role})
@@ -268,32 +275,101 @@ export const WithdrawalSection: React.FC = () => {
               />
             </div>
 
-            <div className="pt-2 border-t border-zinc-200 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={handleReject}
-                className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold rounded-lg transition-colors"
-              >
-                Reject &amp; Refund
-              </button>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveProcessId(null)}
-                  className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleApprove}
-                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold shadow-xs"
-                >
-                  Mark Paid &amp; Settled
-                </button>
+            {/* Confirmation step banner if approve or reject clicked */}
+            {confirmMode === 'approve' && (
+              <div className="bg-emerald-50 border border-emerald-300 p-3.5 rounded-xl space-y-2">
+                <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Confirm Withdrawal Approval</span>
+                </div>
+                <p className="text-xs text-emerald-800">
+                  Are you sure you want to mark this payout of <strong>₹{(Number(activeWithdrawal.amountINR ?? 0)).toLocaleString('en-IN')}</strong> to <strong>{activeWithdrawal.userName}</strong> as paid and settled?
+                </p>
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmMode('none')}
+                    className="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-xs font-semibold rounded-lg"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleApprove}
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-xs"
+                  >
+                    Confirm Approval
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {confirmMode === 'reject' && (
+              <div className="bg-rose-50 border border-rose-300 p-3.5 rounded-xl space-y-2">
+                <div className="text-xs font-bold text-rose-900 flex items-center gap-1.5">
+                  <AlertTriangle className="w-4 h-4 text-rose-600" />
+                  <span>Confirm Withdrawal Rejection &amp; Refund</span>
+                </div>
+                <p className="text-xs text-rose-800">
+                  Are you sure you want to reject this withdrawal? <strong>₹{(Number(activeWithdrawal.amountINR ?? 0)).toLocaleString('en-IN')}</strong> will be immediately refunded to <strong>{activeWithdrawal.userName}</strong>&apos;s available balance.
+                </p>
+                <div>
+                  <label className="text-[11px] font-bold text-zinc-700 block mb-1">Rejection Reason:</label>
+                  <input
+                    type="text"
+                    value={rejectReasonInput}
+                    onChange={(e) => setRejectReasonInput(e.target.value)}
+                    placeholder="Enter reason for rejection"
+                    className="w-full px-3 py-1.5 bg-white border border-rose-200 rounded-lg text-xs"
+                  />
+                </div>
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmMode('none')}
+                    className="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-xs font-semibold rounded-lg"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReject}
+                    className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-xs"
+                  >
+                    Confirm Rejection &amp; Refund
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {confirmMode === 'none' && (
+              <div className="pt-2 border-t border-zinc-200 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setConfirmMode('reject')}
+                  className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-semibold rounded-lg transition-colors"
+                >
+                  Reject &amp; Refund
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveProcessId(null)}
+                    className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmMode('approve')}
+                    className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold shadow-xs"
+                  >
+                    Approve Payout
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

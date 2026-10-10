@@ -31,11 +31,14 @@ export const QueueSection: React.FC = () => {
   );
 
   const filteredQueue = queueSubmissions.filter((item: Submission) => {
-    const matchesSearch =
-      item.taskTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.workerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.assignedPartnerName.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
+    const q = searchTerm.toLowerCase().trim();
+    if (!q) return true;
+    return (
+      (item.taskTitle && item.taskTitle.toLowerCase().includes(q)) ||
+      (item.workerName && item.workerName.toLowerCase().includes(q)) ||
+      (item.assignedPartnerName && item.assignedPartnerName.toLowerCase().includes(q)) ||
+      (item.workerEmail && item.workerEmail.toLowerCase().includes(q))
+    );
   });
 
   const selectedSub = submissions.find((s: Submission) => s.id === selectedSubmissionId);

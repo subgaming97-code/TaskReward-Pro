@@ -28,9 +28,12 @@ export const ActiveTasksSection: React.FC = () => {
   const filteredTasks = tasks.filter((t: Task) => {
     const matchesCategory = categoryFilter === 'all' || t.category === categoryFilter;
     const matchesStatus = statusFilter === 'all' || t.status === statusFilter;
+    const query = search.toLowerCase().trim();
     const matchesSearch =
-      t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.assignedPartnerName.toLowerCase().includes(search.toLowerCase());
+      !query ||
+      (t.title && t.title.toLowerCase().includes(query)) ||
+      (t.assignedPartnerName && t.assignedPartnerName.toLowerCase().includes(query)) ||
+      (t.category && t.category.toLowerCase().includes(query));
     return matchesCategory && matchesStatus && matchesSearch;
   });
 
@@ -44,6 +47,7 @@ export const ActiveTasksSection: React.FC = () => {
       assignedPartnerName: editingTask.assignedPartnerName,
       status: editingTask.status,
       priority: editingTask.priority,
+      taskLink: editingTask.taskLink?.trim() || undefined,
     });
     setEditingTask(null);
   };
@@ -286,6 +290,17 @@ export const ActiveTasksSection: React.FC = () => {
                   className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="font-semibold text-zinc-700 block mb-1">Task Link</label>
+              <input
+                type="url"
+                value={editingTask.taskLink || ''}
+                onChange={(e) => setEditingTask({ ...editingTask, taskLink: e.target.value })}
+                placeholder="https://..."
+                className="w-full px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg font-mono text-xs"
+              />
             </div>
 
             <div>

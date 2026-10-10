@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { Partner, Task, Submission } from '../../../types';
-import { UserCheck, Building2, CheckCircle2, ArrowRight, Clock } from 'lucide-react';
+import { UserCheck, Building2, CheckCircle2, ArrowRight, Clock, ExternalLink } from 'lucide-react';
 
 export const AssignSection: React.FC = () => {
-  const { tasks, partners, assignTaskToPartner, submissions } = useApp();
+  const { tasks, partners, assignTaskToPartner, updateTask, submissions } = useApp();
 
   const [selectedTaskId, setSelectedTaskId] = useState<string>(tasks[0]?.id || '');
   const [targetPartnerName, setTargetPartnerName] = useState<string>(partners[0]?.name || 'Apex Media');
+  const [taskLink, setTaskLink] = useState<string>('');
   const [assignmentNote, setAssignmentNote] = useState<string>('High-priority review routing.');
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
   const selectedTask = tasks.find((t: Task) => t.id === selectedTaskId);
+
+  useEffect(() => {
+    const t = tasks.find((item) => item.id === selectedTaskId);
+    setTaskLink(t?.taskLink || '');
+  }, [selectedTaskId, tasks]);
 
   const handleAssign = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTaskId || !targetPartnerName) return;
 
     assignTaskToPartner(selectedTaskId, targetPartnerName);
+    updateTask(selectedTaskId, { taskLink: taskLink.trim() || undefined });
     setSuccessNotice(`Task successfully assigned to ${targetPartnerName}. Reviews will route to their dashboard.`);
     setTimeout(() => setSuccessNotice(null), 3000);
   };
@@ -84,6 +91,20 @@ export const AssignSection: React.FC = () => {
             </div>
 
             <div>
+              <label className="font-semibold text-zinc-700 block mb-1">Task Link</label>
+              <input
+                type="url"
+                value={taskLink}
+                onChange={(e) => setTaskLink(e.target.value)}
+                placeholder="https://..."
+                className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg font-mono text-xs text-zinc-900"
+              />
+              <span className="text-[10px] text-zinc-500 block mt-0.5">
+                The actual task or work URL that will open when the worker clicks it.
+              </span>
+            </div>
+
+            <div>
               <label className="font-semibold text-zinc-700 block mb-1">Routing &amp; QA Directives</label>
               <textarea
                 rows={3}
@@ -129,6 +150,17 @@ export const AssignSection: React.FC = () => {
                       <span>•</span>
                       <span className="font-semibold text-emerald-700">₹{task.rewardINR} per completion</span>
                     </div>
+                    {task.taskLink && (
+                      <a
+                        href={task.taskLink.startsWith('http') ? task.taskLink : `https://${task.taskLink}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] text-blue-600 hover:underline flex items-center gap-1 mt-1 font-mono break-all"
+                      >
+                        <ExternalLink className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{task.taskLink}</span>
+                      </a>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-4 text-right">

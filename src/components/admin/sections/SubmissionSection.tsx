@@ -28,10 +28,13 @@ export const SubmissionSection: React.FC = () => {
   const filtered = submissions.filter((sub: Submission) => {
     const matchesStatus = statusFilter === 'all' || sub.status === statusFilter;
     const matchesPartner = partnerFilter === 'all' || sub.assignedPartnerName === partnerFilter;
+    const q = search.toLowerCase().trim();
     const matchesSearch =
-      sub.taskTitle.toLowerCase().includes(search.toLowerCase()) ||
-      sub.workerName.toLowerCase().includes(search.toLowerCase()) ||
-      sub.proofText.toLowerCase().includes(search.toLowerCase());
+      !q ||
+      (sub.taskTitle && sub.taskTitle.toLowerCase().includes(q)) ||
+      (sub.workerName && sub.workerName.toLowerCase().includes(q)) ||
+      (sub.workerEmail && sub.workerEmail.toLowerCase().includes(q)) ||
+      (sub.proofText && sub.proofText.toLowerCase().includes(q));
     return matchesStatus && matchesPartner && matchesSearch;
   });
 
@@ -139,6 +142,29 @@ export const SubmissionSection: React.FC = () => {
                     </td>
                     <td className="py-3 px-4 max-w-sm">
                       <p className="text-zinc-700 line-clamp-2 text-[11px]">{sub.proofText}</p>
+                      {sub.proofImage && (
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <a
+                            href={sub.proofImage}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group relative inline-block border border-zinc-200 rounded-lg overflow-hidden bg-zinc-100 shrink-0"
+                            title="Click to view uploaded proof"
+                          >
+                            <img
+                              src={sub.proofImage}
+                              alt="Proof Screenshot"
+                              className="w-10 h-10 object-cover hover:opacity-80 transition-opacity"
+                            />
+                          </a>
+                          <span className="text-[10px] text-zinc-500 font-mono truncate max-w-[120px]">
+                            {sub.proofFileName || 'screenshot.png'}
+                          </span>
+                        </div>
+                      )}
+                      {!sub.proofImage && sub.proofFileName && (
+                        <span className="text-[10px] text-zinc-500 font-mono block mt-0.5">📎 {sub.proofFileName}</span>
+                      )}
                       {sub.proofUrl && (
                         <a
                           href={sub.proofUrl}
@@ -252,6 +278,46 @@ export const SubmissionSection: React.FC = () => {
                   <span className="ml-2 font-mono font-bold text-blue-900">{activeSub.secretCodeProvided}</span>
                 </div>
               )}
+
+              {/* Uploaded Proof Screenshot / Image */}
+              {activeSub.proofImage ? (
+                <div>
+                  <label className="font-semibold text-zinc-800 block mb-1">
+                    Uploaded Proof Screenshot / Image:
+                  </label>
+                  <div className="border border-zinc-200 rounded-xl overflow-hidden bg-zinc-100 p-2 inline-block max-w-full">
+                    <a
+                      href={activeSub.proofImage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Click to view full size image in new tab"
+                      className="block group relative"
+                    >
+                      <img
+                        src={activeSub.proofImage}
+                        alt="Uploaded Proof Screenshot"
+                        className="max-h-64 rounded-lg object-contain max-w-full hover:opacity-95 transition-opacity bg-white"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-semibold rounded-lg transition-opacity gap-1.5">
+                        <span>Open Full Size</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </div>
+                    </a>
+                    {activeSub.proofFileName && (
+                      <span className="text-[11px] text-zinc-600 block mt-1 font-mono">
+                        📎 {activeSub.proofFileName}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : activeSub.proofFileName ? (
+                <div>
+                  <label className="font-semibold text-zinc-800 block mb-1">Proof Attachment:</label>
+                  <span className="inline-block bg-zinc-200 text-zinc-800 px-2 py-1 rounded-sm font-mono text-[11px]">
+                    📎 {activeSub.proofFileName}
+                  </span>
+                </div>
+              ) : null}
 
               {activeSub.proofUrl && (
                 <div>

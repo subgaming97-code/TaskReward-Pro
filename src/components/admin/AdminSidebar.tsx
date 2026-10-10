@@ -18,6 +18,9 @@ import {
   Wrench,
   Building,
   UserCheck,
+  History,
+  ShieldAlert,
+  Wallet,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -27,16 +30,19 @@ interface SidebarItem {
   badge?: number;
 }
 
-export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
-  isOpen,
-  onClose,
-}) => {
+export const AdminSidebar: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectOption?: (option: AdminSidebarOption) => void;
+}> = ({ isOpen, onClose, onSelectOption }) => {
   const {
     adminSidebarOption,
     setAdminSidebarOption,
     submissions,
     withdrawals,
     systemRequests,
+    adminActivityLogs,
+    depositRequests,
   } = useApp();
 
   // Calculate live badge counts
@@ -48,6 +54,7 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
   const pendingWithdrawalsCount = withdrawals.filter((w) => w.status === 'pending').length;
   const pendingAppealsCount = submissions.filter((s) => s.appealStatus === 'pending').length;
   const holdCount = submissions.filter((s) => s.status === 'on_hold').length;
+  const pendingDepositsCount = depositRequests.filter((d) => d.status === 'Pending').length;
 
   const sidebarItems: SidebarItem[] = [
     { id: 'Q-U-U-E-U-E', label: 'Q-U-U-E-U-E', icon: ListOrdered, badge: pendingQueueCount },
@@ -63,9 +70,12 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
     { id: 'Hold', label: 'Hold', icon: Clock, badge: holdCount },
     { id: 'States', label: 'States', icon: BarChart3 },
     { id: 'Withdrawal', label: 'Withdrawal', icon: CreditCard, badge: pendingWithdrawalsCount },
+    { id: 'Deposit Requests', label: 'Deposit Requests', icon: Wallet, badge: pendingDepositsCount },
     { id: 'Maintenance', label: 'Maintenance', icon: Wrench },
     { id: 'Partners', label: 'Partners', icon: Building },
     { id: 'Assign', label: 'Assign', icon: UserCheck },
+    { id: 'Activity Logs', label: 'Activity Logs', icon: History },
+    { id: 'Administration', label: 'Administration', icon: ShieldAlert },
   ];
 
   return (
@@ -79,25 +89,25 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
       )}
 
       <aside
-        className={`fixed top-16 bottom-0 left-0 z-30 w-64 bg-slate-900 text-slate-100 flex flex-col border-r border-slate-800 transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-16 bottom-0 left-0 z-30 w-64 bg-[#0d1322]/95 backdrop-blur-xl text-zinc-100 flex flex-col border-r border-white/[0.08] shadow-2xl shadow-black/40 transition-transform duration-200 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 border-b border-white/[0.08] flex items-center justify-between bg-white/[0.02]">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
               Admin Master Menu
             </span>
-            <h2 className="text-sm font-semibold text-white">System Controls</h2>
+            <h2 className="text-sm font-bold text-white tracking-tight">System Controls</h2>
           </div>
-          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm bg-blue-500/20 text-blue-300 border border-blue-500/30">
-            16 Tools
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-300 border border-blue-500/30">
+            {sidebarItems.length} Tools
           </span>
         </div>
 
         {/* Scrollable Nav list */}
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-thin scrollbar-thumb-slate-700">
+        <nav className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-800">
           {sidebarItems.map((item) => {
             const Icon = item.icon;
             const isActive = adminSidebarOption === item.id;
@@ -106,29 +116,37 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
                 key={item.id}
                 id={`admin-nav-${item.id.toLowerCase()}`}
                 onClick={() => {
-                  setAdminSidebarOption(item.id);
-                  onClose();
+                  if (onSelectOption) {
+                    onSelectOption(item.id);
+                  } else {
+                    setAdminSidebarOption(item.id);
+                    onClose();
+                  }
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? 'bg-blue-600 text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 border border-blue-400/30 scale-[1.01]'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.05] border border-transparent'
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <Icon
-                    className={`w-4 h-4 shrink-0 ${
-                      isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                      isActive
+                        ? 'bg-white/20 text-white'
+                        : 'bg-white/[0.04] text-zinc-400 group-hover:text-zinc-200'
                     }`}
-                  />
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
                   <span className="truncate">{item.label}</span>
                 </div>
 
                 {item.badge !== undefined && item.badge > 0 && (
                   <span
-                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                       isActive
-                        ? 'bg-white text-blue-700'
+                        ? 'bg-white text-blue-700 shadow-xs'
                         : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                     }`}
                   >
@@ -141,9 +159,12 @@ export const AdminSidebar: React.FC<{ isOpen: boolean; onClose: () => void }> = 
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
-          <span>Role: Root Admin</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-ping" />
+        <div className="p-3.5 border-t border-white/[0.08] text-[11px] text-zinc-400 flex items-center justify-between bg-white/[0.02]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-ping" />
+            <span className="font-medium text-zinc-300">Root Admin</span>
+          </div>
+          <span className="text-[10px] text-zinc-500 font-mono">v2.4.0</span>
         </div>
       </aside>
     </>

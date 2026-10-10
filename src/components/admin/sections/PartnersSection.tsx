@@ -97,7 +97,7 @@ export const PartnersSection: React.FC = () => {
             <div className="flex items-center justify-between pt-1 border-t border-zinc-100 text-xs">
               <span className="text-zinc-500">Unwithdrawn Balance:</span>
               <span className="font-extrabold text-emerald-700 text-sm">
-                ₹{partner.earnedBalanceINR.toLocaleString('en-IN')}
+                ₹{(partner.earnedBalanceINR ?? 0).toLocaleString('en-IN')}
               </span>
             </div>
 

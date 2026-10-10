@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../../../context/AppContext';
 import { Worker, Partner, WithdrawalRequest, Submission } from '../../../types';
+import { RewardsDistributionChart } from '../RewardsDistributionChart';
 import {
   BarChart3,
   TrendingUp,
@@ -60,7 +61,7 @@ export const StatesSection: React.FC = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-emerald-800 mt-2">
-            ₹{totalWithdrawalsCompleted.toLocaleString('en-IN')}
+            ₹{(totalWithdrawalsCompleted ?? 0).toLocaleString('en-IN')}
           </div>
           <span className="text-[11px] text-emerald-600 flex items-center gap-1 mt-1 font-medium">
             <TrendingUp className="w-3 h-3" /> Settled via IMPS &amp; UPI
@@ -75,7 +76,7 @@ export const StatesSection: React.FC = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-zinc-900 mt-2">
-            ₹{totalWorkerBalances.toLocaleString('en-IN')}
+            ₹{(totalWorkerBalances ?? 0).toLocaleString('en-IN')}
           </div>
           <span className="text-[11px] text-zinc-500 block mt-1">Available across {workers.length} worker wallets</span>
         </div>
@@ -88,7 +89,7 @@ export const StatesSection: React.FC = () => {
             </div>
           </div>
           <div className="text-2xl font-black text-zinc-900 mt-2">
-            ₹{totalPartnerEarned.toLocaleString('en-IN')}
+            ₹{(totalPartnerEarned ?? 0).toLocaleString('en-IN')}
           </div>
           <span className="text-[11px] text-zinc-500 block mt-1">{partners.length} active agency partners</span>
         </div>
@@ -104,6 +105,9 @@ export const StatesSection: React.FC = () => {
           <span className="text-[11px] text-indigo-600 block mt-1">From {submissions.length} audited tasks</span>
         </div>
       </div>
+
+      {/* Recharts 30-Day INR Rewards Distribution Bar Chart */}
+      <RewardsDistributionChart />
 
       {/* Regional States Distribution */}
       <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs space-y-4">
