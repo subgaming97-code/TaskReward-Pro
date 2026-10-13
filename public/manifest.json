@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "TaskReward Pro",
-  "short_name": "TaskReward",
-  "description": "Enterprise multi-role task management and rewards platform with INR rewards payout.",
+  "name": "Task and Esports Arena",
+  "short_name": "Task & Esports",
+  "description": "Enterprise multi-role task management and esports tournament platform with INR rewards payout.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

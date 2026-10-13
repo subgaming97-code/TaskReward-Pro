@@ -289,12 +289,12 @@ export const AppSidebar: React.FC = () => {
         {/* Sidebar Header */}
         <div className="p-5 border-b border-white/[0.08] flex items-center justify-between bg-gradient-to-r from-[#10182c] to-[#0b101c]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-[0_0_15px_rgba(6,182,212,0.35)] border border-cyan-400/30">
-              TR
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs tracking-tight shadow-[0_0_15px_rgba(6,182,212,0.35)] border border-cyan-400/30">
+              TEA
             </div>
             <div>
               <h2 className="text-sm font-black text-white tracking-tight">
-                TaskReward <span className="text-cyan-400">Pro</span>
+                Task and Esports <span className="text-cyan-400">Arena</span>
               </h2>
               <span className="text-[10px] text-zinc-400 font-mono">Platform Navigation</span>
             </div>
@@ -381,7 +381,7 @@ export const AppSidebar: React.FC = () => {
         {/* Sidebar Footer with HIDDEN ADMIN PANEL LINK */}
         <div className="p-4 border-t border-white/[0.08] bg-[#070b14] space-y-3">
           <div className="flex items-center justify-between text-[11px] text-zinc-500">
-            <span>TaskReward Pro v2.4</span>
+            <span>Task and Esports Arena v2.4</span>
             <button
               type="button"
               onClick={logout}

@@ -10,6 +10,7 @@ import { PlayerSupportTicketModal } from './PlayerSupportTicketModal';
 import { PublicLeaderboardView } from './PublicLeaderboardView';
 import { AddDepositForm } from './AddDepositForm';
 import { AddDepositModal } from './AddDepositModal';
+import { TournamentProfileSetupModal } from './TournamentProfileSetupModal';
 import {
   Trophy,
   Swords,
@@ -80,6 +81,10 @@ export const TournamentSection: React.FC = () => {
   const [detailsTournament, setDetailsTournament] = useState<Tournament | null>(null);
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(
+    !currentWorker.hasTournamentProfile || !currentWorker.esportsTournamentUid
+  );
+  const [copiedPlayerUid, setCopiedPlayerUid] = useState(false);
 
   // Match results expanded cards state
   const [expandedResultId, setExpandedResultId] = useState<string | null>(null);
@@ -197,7 +202,7 @@ export const TournamentSection: React.FC = () => {
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-xl border border-cyan-500/25 flex items-center gap-1.5 shadow-sm">
                 <Gamepad2 className="w-3.5 h-3.5" />
-                <span>TaskReward Pro Esports Arena</span>
+                <span>Task and Esports Arena</span>
               </span>
 
               {isModeratorUnlocked && (
@@ -275,21 +280,171 @@ export const TournamentSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Sub-view Switcher: Tournaments vs Match Results vs Leaderboard vs Helpdesk */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+      {/* ======================================================== */}
+      {/* 2. TOURNAMENT PROFILE & ESPORTS TOURNAMENT UID PASS BANNER */}
+      {/* ======================================================== */}
+      {!currentWorker.hasTournamentProfile || !currentWorker.esportsTournamentUid ? (
+        <div className="bg-gradient-to-r from-amber-950/40 via-[#1a1622] to-[#12192a] border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(245,158,11,0.3)]">
+              <Gamepad2 className="w-6 h-6 animate-pulse" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-0.5 rounded-full">
+                  Action Required • Arena Entry Gate
+                </span>
+                <span className="text-[10px] font-bold text-zinc-400 font-mono">
+                  E-sports UID Generation Pending
+                </span>
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-white">
+                Setup Tournament Profile to Enter Arena
+              </h3>
+              <p className="text-xs text-zinc-300 max-w-xl">
+                Please set up your player in-game name and gaming preferences before entering the Arena. Once complete, your unique, non-duplicate <strong>E-sports Tournament UID</strong> will be generated automatically.
+              </p>
+            </div>
+          </div>
+
           <button
             type="button"
-            onClick={() => setSectionView('tournaments')}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
-              sectionView === 'tournaments'
-                ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-600/30'
-                : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
-            }`}
+            id="btn-setup-tournament-profile-gate"
+            onClick={() => setProfileModalOpen(true)}
+            className="px-6 py-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs sm:text-sm rounded-2xl transition-all shadow-[0_0_25px_rgba(245,158,11,0.4)] flex items-center justify-center gap-2 cursor-pointer active:scale-95 shrink-0"
           >
-            <Trophy className="w-4 h-4" />
-            <span>Tournaments ({tournaments.length})</span>
+            <Sparkles className="w-4 h-4" />
+            <span>Setup Tournament Profile Now</span>
           </button>
+        </div>
+      ) : (
+        <div className="bg-gradient-to-r from-[#0d182e] via-[#0f172a] to-[#0a1220] border-2 border-cyan-500/30 rounded-3xl p-4 sm:p-5 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-emerald-600 text-white flex items-center justify-center font-black text-base shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/40 shrink-0">
+              <Trophy className="w-6 h-6" />
+            </div>
+            <div className="space-y-1 min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Official Esports Player Identity</span>
+                </span>
+                {currentWorker.gamingPreferences?.playstyle && (
+                  <span className="text-[10px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-md">
+                    {currentWorker.gamingPreferences.playstyle}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-base font-black text-white truncate">
+                  {currentWorker.inGameName || currentWorker.name}
+                </span>
+                {currentWorker.inGameUid && (
+                  <span className="text-xs text-zinc-400 font-mono">
+                    (Game ID: {currentWorker.inGameUid})
+                  </span>
+                )}
+              </div>
+
+              {/* Preferences Chips */}
+              {currentWorker.gamingPreferences && (
+                <div className="flex items-center gap-2 text-[10px] text-zinc-400 flex-wrap pt-0.5">
+                  <span className="text-zinc-300">
+                    Mode: <strong className="text-cyan-300">{currentWorker.gamingPreferences.preferredMode}</strong>
+                  </span>
+                  <span>•</span>
+                  <span className="text-zinc-300">
+                    Map: <strong className="text-emerald-300">{currentWorker.gamingPreferences.preferredMap}</strong>
+                  </span>
+                  <span>•</span>
+                  <span className="text-zinc-300">
+                    Device: <strong>{currentWorker.gamingPreferences.device}</strong>
+                  </span>
+                  <span>•</span>
+                  <span className="text-zinc-300">
+                    Slot: <strong>{currentWorker.gamingPreferences.preferredTime}</strong>
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* UID Card & Edit Button */}
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+            <div className="flex items-center gap-2 bg-black/40 border border-cyan-500/40 px-3.5 py-2 rounded-2xl font-mono shadow-inner">
+              <div>
+                <span className="text-[9px] text-zinc-500 uppercase font-black block tracking-wider">
+                  E-sports Tournament UID
+                </span>
+                <span className="text-sm font-black text-cyan-400 tracking-wider">
+                  {currentWorker.esportsTournamentUid}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(currentWorker.esportsTournamentUid || '');
+                  setCopiedPlayerUid(true);
+                  notify(`Copied E-sports Tournament UID: ${currentWorker.esportsTournamentUid}`);
+                  setTimeout(() => setCopiedPlayerUid(false), 2000);
+                }}
+                className="p-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 transition-colors cursor-pointer ml-1"
+                title="Copy E-sports Tournament UID"
+              >
+                {copiedPlayerUid ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setProfileModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 border border-white/[0.1] text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>Edit Profile</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. ARENA ACCESS LOCK / GATE FOR UNREGISTERED PLAYERS */}
+      {!currentWorker.hasTournamentProfile || !currentWorker.esportsTournamentUid ? (
+        <div className="bg-[#111726] border border-amber-500/30 rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-2xl shadow-black/80">
+          <div className="w-16 h-16 rounded-3xl bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(245,158,11,0.25)]">
+            <Lock className="w-8 h-8" />
+          </div>
+          <div className="space-y-2 max-w-md mx-auto">
+            <h3 className="text-xl font-black text-white">Arena Access Gated</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              To browse live tournaments, join custom rooms, and earn INR rewards, you must complete your Tournament Profile setup and generate your official E-sports Tournament UID.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setProfileModalOpen(true)}
+            className="px-6 py-3.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-black font-black text-xs rounded-2xl shadow-lg shadow-amber-500/30 transition-all cursor-pointer inline-flex items-center gap-2 active:scale-95"
+          >
+            <Gamepad2 className="w-4 h-4" />
+            <span>Complete Setup to Enter Arena</span>
+          </button>
+        </div>
+      ) : (
+        <>
+          {/* Sub-view Switcher: Tournaments vs Match Results vs Leaderboard vs Helpdesk */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <button
+                type="button"
+                onClick={() => setSectionView('tournaments')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                  sectionView === 'tournaments'
+                    ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-md shadow-cyan-600/30'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.05]'
+                }`}
+              >
+                <Trophy className="w-4 h-4" />
+                <span>Tournaments ({tournaments.length})</span>
+              </button>
 
           <button
             type="button"
@@ -436,7 +591,14 @@ export const TournamentSection: React.FC = () => {
                   isRegistered={
                     tournament.registeredPlayerIds?.includes(currentWorker.id) || false
                   }
-                  onJoinClick={(t) => setJoiningTournament(t)}
+                  onJoinClick={(t) => {
+                    if (!currentWorker.hasTournamentProfile || !currentWorker.esportsTournamentUid) {
+                      notify('Please complete your Tournament Profile before registering!');
+                      setProfileModalOpen(true);
+                    } else {
+                      setJoiningTournament(t);
+                    }
+                  }}
                   onDetailsClick={(t) => setDetailsTournament(t)}
                 />
               ))}
@@ -758,6 +920,8 @@ export const TournamentSection: React.FC = () => {
       {sectionView === 'deposit' && (
         <AddDepositForm />
       )}
+        </>
+      )}
 
       {/* ======================================================== */}
       {/* 4. MODALS & PANELS                                       */}
@@ -812,6 +976,16 @@ export const TournamentSection: React.FC = () => {
       <PlayerSupportTicketModal
         isOpen={ticketModalOpen}
         onClose={() => setTicketModalOpen(false)}
+      />
+
+      {/* Tournament Profile Setup Gate Modal */}
+      <TournamentProfileSetupModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        isMandatory={!currentWorker.hasTournamentProfile || !currentWorker.esportsTournamentUid}
+        onProfileActivated={() => {
+          // Keep celebration view open until user clicks 'Enter Task and Esports Arena Now'
+        }}
       />
     </div>
   );

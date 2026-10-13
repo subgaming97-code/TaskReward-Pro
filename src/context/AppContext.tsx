@@ -43,6 +43,7 @@ import {
   RoleSecurityPins,
   DepositRequest,
   DepositRequestStatus,
+  GamingPreferences,
 } from '../types';
 
 export const DEFAULT_ROLE_PINS: RoleSecurityPins = {
@@ -269,6 +270,12 @@ interface AppContextType {
   ) => void;
   isModeratorUnlocked: boolean;
   setIsModeratorUnlocked: (unlocked: boolean) => void;
+  saveTournamentProfile: (
+    inGameName: string,
+    inGameUid: string | undefined,
+    gamingPreferences: GamingPreferences
+  ) => Promise<{ success: boolean; esportsTournamentUid: string }>;
+  generateEsportsTournamentUid: (type?: 'player' | 'tournament') => string;
 
   // Match Results System
   matchResults: TournamentMatchResult[];
@@ -1125,6 +1132,7 @@ const INITIAL_PARTNER_LOGS: PartnerActivityLog[] = [
 export const INITIAL_TOURNAMENTS: Tournament[] = [
   {
     id: 'tourn-1',
+    esportsTournamentUid: 'ETUID-TRN-88210',
     title: 'Free Fire MAX Pro Solo Blitz',
     game: 'Free Fire MAX',
     gameMode: 'Solo',
@@ -1149,6 +1157,7 @@ export const INITIAL_TOURNAMENTS: Tournament[] = [
   },
   {
     id: 'tourn-2',
+    esportsTournamentUid: 'ETUID-TRN-88211',
     title: 'Grand Battle Royale Championship',
     game: 'Free Fire MAX',
     gameMode: 'Battle Royale',
@@ -1173,6 +1182,7 @@ export const INITIAL_TOURNAMENTS: Tournament[] = [
   },
   {
     id: 'tourn-3',
+    esportsTournamentUid: 'ETUID-TRN-88212',
     title: 'Elite 4-Squad Clash Series',
     game: 'Free Fire MAX',
     gameMode: 'Squad',
@@ -1197,6 +1207,7 @@ export const INITIAL_TOURNAMENTS: Tournament[] = [
   },
   {
     id: 'tourn-4',
+    esportsTournamentUid: 'ETUID-TRN-88213',
     title: 'Iron Cage Lone Wolf Duel',
     game: 'Free Fire MAX',
     gameMode: 'Lone Wolf',
@@ -1221,6 +1232,7 @@ export const INITIAL_TOURNAMENTS: Tournament[] = [
   },
   {
     id: 'tourn-5',
+    esportsTournamentUid: 'ETUID-TRN-88214',
     title: 'Creator Custom Craftland Showdown',
     game: 'Free Fire MAX',
     gameMode: 'Craftland',
@@ -1245,6 +1257,7 @@ export const INITIAL_TOURNAMENTS: Tournament[] = [
   },
   {
     id: 'tourn-6',
+    esportsTournamentUid: 'ETUID-TRN-88215',
     title: 'Apex 1v1 Sniper Showdown',
     game: 'Free Fire MAX',
     gameMode: '1v1',
@@ -1269,6 +1282,7 @@ export const INITIAL_TOURNAMENTS: Tournament[] = [
   },
   {
     id: 'tourn-7',
+    esportsTournamentUid: 'ETUID-TRN-88216',
     title: 'Duo Warfare 2v2 Tag Cup',
     game: 'Free Fire MAX',
     gameMode: '2v2',
@@ -1293,6 +1307,7 @@ export const INITIAL_TOURNAMENTS: Tournament[] = [
   },
   {
     id: 'tourn-8',
+    esportsTournamentUid: 'ETUID-TRN-88217',
     title: 'Trios Warzone 3v3 Firefight',
     game: 'Free Fire MAX',
     gameMode: '3v3',
@@ -1324,6 +1339,7 @@ export const INITIAL_TOURNAMENT_PARTICIPANTS: TournamentParticipant[] = [
     workerId: 'w-100',
     workerName: 'Arati Bera',
     workerUid: 'UID-928410',
+    esportsTournamentUid: 'ETUID-928410',
     inGameName: 'Arati_SniperX',
     inGameUid: 'FF-7829104',
     registeredAt: '2026-10-04 12:15 PM',
@@ -1335,6 +1351,7 @@ export const INITIAL_TOURNAMENT_PARTICIPANTS: TournamentParticipant[] = [
     workerId: 'w-101',
     workerName: 'Alex Rivera',
     workerUid: 'UID-849201',
+    esportsTournamentUid: 'ETUID-849201',
     inGameName: 'Alex_Rogue99',
     inGameUid: 'FF-4920183',
     registeredAt: '2026-10-04 01:20 PM',
@@ -1346,6 +1363,7 @@ export const INITIAL_TOURNAMENT_PARTICIPANTS: TournamentParticipant[] = [
     workerId: 'w-100',
     workerName: 'Arati Bera',
     workerUid: 'UID-928410',
+    esportsTournamentUid: 'ETUID-928410',
     inGameName: 'Arati_SniperX',
     inGameUid: 'FF-7829104',
     registeredAt: '2026-10-04 03:00 PM',
@@ -2014,9 +2032,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [tournaments, setTournaments] = useState<Tournament[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY + '_tournaments');
-      return stored ? JSON.parse(stored) : INITIAL_TOURNAMENTS;
+      const list: Tournament[] = stored ? JSON.parse(stored) : INITIAL_TOURNAMENTS;
+      return list.map((t, idx) => ({
+        ...t,
+        esportsTournamentUid: t.esportsTournamentUid || `ETUID-TRN-${88210 + idx}`,
+      }));
     } catch {
-      return INITIAL_TOURNAMENTS;
+      return INITIAL_TOURNAMENTS.map((t, idx) => ({
+        ...t,
+        esportsTournamentUid: t.esportsTournamentUid || `ETUID-TRN-${88210 + idx}`,
+      }));
     }
   });
 
@@ -2367,7 +2392,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         id: targetUid, // Exactly the authenticated user's UID as doc ID: workers/{authenticatedUserUID}
         uniqueUserId: assignedUniqueId,
         eid: assignedEid,
-        name: cleanName || existingData?.name || (cleanEmail ? cleanEmail.split('@')[0] : 'TaskFlow Worker'),
+        name: cleanName || existingData?.name || (cleanEmail ? cleanEmail.split('@')[0] : 'Task and Esports Arena Worker'),
         email: cleanEmail || existingData?.email || '',
         phone: existingData?.phone || '+91 9' + Math.floor(10000000 + Math.random() * 90000000),
         availableBalanceINR:
@@ -2392,6 +2417,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(cleanEmail || targetUid)}`,
           signedInAt: new Date().toLocaleString(),
         },
+        esportsTournamentUid: existingData?.esportsTournamentUid,
+        inGameName: existingData?.inGameName,
+        inGameUid: existingData?.inGameUid,
+        gamingPreferences: existingData?.gamingPreferences,
+        hasTournamentProfile: existingData?.hasTournamentProfile,
+        tournamentProfileCreatedAt: existingData?.tournamentProfileCreatedAt,
       };
 
       // 2. Persist to Firestore: create or update EXACTLY ONE document using authenticated user's UID: workers/{targetUid}
@@ -2450,7 +2481,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           performedByAdmin: 'Auth System',
         });
         notify(
-          `Welcome to TaskFlow! Verified User ID: ${assignedUniqueId} (E-ID: ${assignedEid})`
+          `Welcome to Task and Esports Arena! Verified User ID: ${assignedUniqueId} (E-ID: ${assignedEid})`
         );
       } else {
         notify(
@@ -2516,7 +2547,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const unsubAuth = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser && fbUser.uid) {
         const cleanEmail = (fbUser.email || '').trim().toLowerCase();
-        const cleanName = fbUser.displayName?.trim() || (cleanEmail ? cleanEmail.split('@')[0] : 'TaskFlow Worker');
+        const cleanName = fbUser.displayName?.trim() || (cleanEmail ? cleanEmail.split('@')[0] : 'Task and Esports Arena Worker');
         const avatarUrl = fbUser.photoURL || (cleanEmail ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(cleanEmail)}` : undefined);
         try {
           await syncWorkerRecordWithUid(fbUser.uid, cleanEmail, cleanName, avatarUrl);
@@ -2538,7 +2569,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }): Promise<{ success: boolean; worker?: Worker; isNewUser?: boolean; message?: string }> => {
     const cleanEmail = profile.email.trim().toLowerCase();
     const cleanName = profile.name?.trim() || cleanEmail.split('@')[0];
-    const defaultPassword = profile.password || 'TaskFlow@2026';
+    const defaultPassword = profile.password || 'TaskArena@2026';
     let authUid: string | undefined;
 
     // 1. Attempt to create user in Firebase Authentication
@@ -3311,11 +3342,80 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     notify(`Partner "${created.name}" registered.`);
   };
 
+  // E-sports Tournament UID Generator
+  const generateEsportsTournamentUid = (type: 'player' | 'tournament' = 'player'): string => {
+    const prefix = type === 'tournament' ? 'ETUID-TRN' : 'ETUID';
+    const existingUids = new Set<string>();
+    workers.forEach((w) => {
+      if (w.esportsTournamentUid) existingUids.add(w.esportsTournamentUid.toUpperCase());
+    });
+    tournaments.forEach((t) => {
+      if (t.esportsTournamentUid) existingUids.add(t.esportsTournamentUid.toUpperCase());
+    });
+    tournamentParticipants.forEach((tp) => {
+      if (tp.esportsTournamentUid) existingUids.add(tp.esportsTournamentUid.toUpperCase());
+    });
+
+    let candidate = '';
+    let attempts = 0;
+    do {
+      const randomDigits = Math.floor(100000 + Math.random() * 900000);
+      candidate = `${prefix}-${randomDigits}`;
+      attempts++;
+    } while (existingUids.has(candidate) && attempts < 2000);
+
+    return candidate;
+  };
+
+  const saveTournamentProfile = async (
+    inGameName: string,
+    inGameUid: string | undefined,
+    gamingPreferences: GamingPreferences
+  ): Promise<{ success: boolean; esportsTournamentUid: string }> => {
+    const cleanIgn = inGameName.trim();
+    if (!cleanIgn) {
+      notify('In-game name is required for Tournament Profile.');
+      return { success: false, esportsTournamentUid: '' };
+    }
+
+    const assignedUid = currentWorker.esportsTournamentUid || generateEsportsTournamentUid('player');
+
+    const updatedWorker: Worker = {
+      ...currentWorker,
+      inGameName: cleanIgn,
+      inGameUid: (inGameUid || '').trim(),
+      gamingPreferences,
+      esportsTournamentUid: assignedUid,
+      hasTournamentProfile: true,
+      tournamentProfileCreatedAt: currentWorker.tournamentProfileCreatedAt || new Date().toISOString(),
+    };
+
+    setWorkers((prev) => {
+      const updated = prev.map((w) => (w.id === currentWorker.id ? updatedWorker : w));
+      try {
+        localStorage.setItem(STORAGE_KEY + '_workers', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('LocalStorage save error:', e);
+      }
+      return updated;
+    });
+
+    try {
+      await saveDocument('workers', updatedWorker);
+    } catch (e) {
+      console.warn('Firestore save worker notice:', e);
+    }
+
+    notify(`Tournament Profile activated! Official E-sports UID: ${assignedUid}`);
+    return { success: true, esportsTournamentUid: assignedUid };
+  };
+
   // Tournament Action Implementations
   const addTournament = (newTourn: Omit<Tournament, 'id' | 'registeredSlots' | 'createdAt'>): Tournament => {
     const created: Tournament = {
       ...newTourn,
       id: `tourn-${Date.now()}`,
+      esportsTournamentUid: newTourn.esportsTournamentUid || generateEsportsTournamentUid('tournament'),
       registeredSlots: 0,
       registeredPlayerIds: [],
       createdAt: new Date().toLocaleString('en-US', {
@@ -3418,8 +3518,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       workerId: currentWorker.id,
       workerName: currentWorker.name,
       workerUid: currentWorker.uniqueUserId || currentWorker.eid,
-      inGameName: inGameName.trim(),
-      inGameUid: inGameUid.trim(),
+      esportsTournamentUid: currentWorker.esportsTournamentUid,
+      inGameName: inGameName.trim() || currentWorker.inGameName || currentWorker.name,
+      inGameUid: inGameUid.trim() || currentWorker.inGameUid || '',
       registeredAt: new Date().toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -3967,6 +4068,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         awardTournamentPrizes,
         isModeratorUnlocked,
         setIsModeratorUnlocked,
+        saveTournamentProfile,
+        generateEsportsTournamentUid,
         matchResults,
         addMatchResult,
         updateMatchResult,

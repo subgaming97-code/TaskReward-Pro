@@ -23,8 +23,7 @@
   <g transform="translate(106, 106)" filter="url(#glow)">
     <circle cx="150" cy="150" r="130" fill="url(#accentGrad)" opacity="0.2"/>
     <circle cx="150" cy="150" r="110" fill="url(#bgGrad)" stroke="url(#accentGrad)" stroke-width="8"/>
-    <!-- TR Monogram -->
-    <path d="M100 115 H200 M150 115 V195" stroke="#38bdf8" stroke-width="22" stroke-linecap="round"/>
-    <path d="M175 135 H205 C220 135 220 165 205 165 H180 M195 165 L220 205" stroke="#34d399" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Task and Esports Arena Monogram (TEA) -->
+    <text x="150" y="172" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="76" fill="url(#accentGrad)" text-anchor="middle" letter-spacing="2">TEA</text>
   </g>
 </svg>

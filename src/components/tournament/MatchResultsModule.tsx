@@ -267,7 +267,7 @@ export const MatchResultsModule: React.FC = () => {
         return `${medal} ${s.inGameName} | Kills: ${s.kills} | Pts: ${s.totalPoints} | Won: ₹${s.prizeWonINR}${s.isMvp ? ' ⭐MVP' : ''}`;
       }),
       `----------------------------------------`,
-      `⚡ Verified by TaskReward Pro Moderator Console (Audited & Confirmed)`,
+      `⚡ Verified by Task and Esports Arena Moderator Console (Audited & Confirmed)`,
     ];
     navigator.clipboard.writeText(lines.join('\n'));
     notify('Scorecard copied to clipboard for Discord/WhatsApp sharing!');

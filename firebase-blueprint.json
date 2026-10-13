@@ -2,7 +2,7 @@
   "entities": {
     "Worker": {
       "title": "Worker",
-      "description": "Registered user/worker in the TaskFlow system with unique identifier and INR earnings balance.",
+      "description": "Registered user/worker in the Task and Esports Arena system with unique identifier and INR earnings balance.",
       "type": "object",
       "properties": {
         "id": { "type": "string", "maxLength": 100 },
@@ -24,7 +24,13 @@
         "phone": { "type": "string", "maxLength": 50 },
         "upiId": { "type": "string", "maxLength": 200 },
         "avatarUrl": { "type": "string", "maxLength": 2000 },
-        "googleAccount": { "type": "object" }
+        "googleAccount": { "type": "object" },
+        "esportsTournamentUid": { "type": "string", "maxLength": 100 },
+        "inGameName": { "type": "string", "maxLength": 100 },
+        "inGameUid": { "type": "string", "maxLength": 100 },
+        "gamingPreferences": { "type": "object" },
+        "hasTournamentProfile": { "type": "boolean" },
+        "tournamentProfileCreatedAt": { "type": "string", "maxLength": 100 }
       },
       "required": ["id", "uniqueUserId", "name", "email", "availableBalanceINR"]
     },
@@ -111,7 +117,7 @@
     },
     "PlatformSettings": {
       "title": "PlatformSettings",
-      "description": "Global configuration and operational parameters for TaskFlow.",
+      "description": "Global configuration and operational parameters for Task and Esports Arena.",
       "type": "object",
       "properties": {
         "id": { "type": "string", "maxLength": 50 },
@@ -151,7 +157,8 @@
         "roomPassword": { "type": "string", "maxLength": 100 },
         "rules": { "type": "string", "maxLength": 5000 },
         "createdAt": { "type": "string", "maxLength": 100 },
-        "createdBy": { "type": "string", "maxLength": 100 }
+        "createdBy": { "type": "string", "maxLength": 100 },
+        "esportsTournamentUid": { "type": "string", "maxLength": 100 }
       },
       "required": ["id", "title", "gameMode", "prizePoolINR", "entryFeeINR", "status"]
     },
@@ -165,6 +172,7 @@
         "workerId": { "type": "string", "maxLength": 100 },
         "workerName": { "type": "string", "maxLength": 200 },
         "workerUid": { "type": "string", "maxLength": 100 },
+        "esportsTournamentUid": { "type": "string", "maxLength": 100 },
         "inGameName": { "type": "string", "maxLength": 100 },
         "inGameUid": { "type": "string", "maxLength": 100 },
         "registeredAt": { "type": "string", "maxLength": 100 },

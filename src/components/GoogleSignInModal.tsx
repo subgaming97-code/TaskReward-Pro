@@ -71,7 +71,7 @@ export const GoogleSignInModal: React.FC = () => {
                 Sign in with Google
               </h3>
               <p className="text-xs text-zinc-400 mt-0.5">
-                to continue to TaskReward Pro
+                to continue to Task and Esports Arena
               </p>
             </div>
           </div>

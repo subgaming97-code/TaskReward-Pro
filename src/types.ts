@@ -148,6 +148,16 @@ export interface GoogleAccountProfile {
   signedInAt: string;
 }
 
+export interface GamingPreferences {
+  preferredMode: TournamentGameMode;
+  preferredMap: string;
+  playstyle: 'Rusher' | 'Sniper' | 'Support' | 'In-Game Leader (IGL)' | 'Assaulter' | 'All-Rounder';
+  device: 'Android Mobile' | 'iOS Mobile' | 'iPad / Tablet' | 'PC / Emulator';
+  preferredTime: 'Morning (9 AM - 1 PM)' | 'Afternoon (1 PM - 5 PM)' | 'Evening (5 PM - 9 PM)' | 'Night (9 PM - 1 AM)' | 'Flexible / Any';
+  competitiveExperience?: 'Casual Player' | 'Ranked Challenger' | 'Semi-Pro' | 'Tournament Veteran';
+  favoriteWeaponCategory?: 'Assault Rifle' | 'SMG' | 'Sniper' | 'Shotgun';
+}
+
 export interface Worker {
   id: string;
   uniqueUserId: string;
@@ -163,6 +173,13 @@ export interface Worker {
   upiId?: string;
   avatarUrl?: string;
   googleAccount?: GoogleAccountProfile;
+  // Tournament Profile & E-sports Tournament UID
+  esportsTournamentUid?: string;
+  inGameName?: string;
+  inGameUid?: string;
+  gamingPreferences?: GamingPreferences;
+  hasTournamentProfile?: boolean;
+  tournamentProfileCreatedAt?: string;
 }
 
 export interface SecretVoucher {
@@ -326,6 +343,7 @@ export interface Tournament {
   customMapCode?: string;
   createdAt: string;
   createdBy?: string;
+  esportsTournamentUid?: string;
 }
 
 export interface TournamentParticipant {
@@ -334,6 +352,7 @@ export interface TournamentParticipant {
   workerId: string;
   workerName: string;
   workerUid: string;
+  esportsTournamentUid?: string;
   inGameName: string;
   inGameUid: string;
   registeredAt: string;

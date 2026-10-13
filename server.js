@@ -28,12 +28,12 @@ app.get('*', (_req, res) => {
   if (fs.existsSync(indexPath)) {
     res.sendFile(indexPath);
   } else {
-    res.status(200).send('TaskReward Pro application is starting up...');
+    res.status(200).send('Task and Esports Arena application is starting up...');
   }
 });
 
 const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`TaskReward Pro Server listening on http://0.0.0.0:${PORT}`);
+  console.log(`Task and Esports Arena Server listening on http://0.0.0.0:${PORT}`);
 });
 
 server.on('error', (err) => {

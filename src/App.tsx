@@ -60,10 +60,10 @@ const AppContent: React.FC = () => {
       <footer className="bg-[#0b0f19] border-t border-white/[0.08] py-6 text-xs text-zinc-500 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 text-white flex items-center justify-center font-black text-xs shadow-xs">
-              TR
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-600 text-white flex items-center justify-center font-black text-[10px] shadow-xs">
+              TEA
             </div>
-            <span className="font-bold text-zinc-300">TaskReward Pro</span>
+            <span className="font-bold text-zinc-300">Task and Esports Arena</span>
             <span className="text-zinc-700">•</span>
             <span className="text-zinc-400">Enterprise INR Reward System</span>
           </div>

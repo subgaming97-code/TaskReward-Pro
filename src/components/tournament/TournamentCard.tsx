@@ -99,6 +99,11 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
             {tournament.gameMode}
           </span>
           <span className="text-[11px] font-bold text-zinc-400">{tournament.game}</span>
+          {tournament.esportsTournamentUid && (
+            <span className="text-[9px] font-mono font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/25 px-1.5 py-0.5 rounded">
+              {tournament.esportsTournamentUid}
+            </span>
+          )}
         </div>
 
         <span

@@ -322,7 +322,7 @@ export const AdminPanel: React.FC = () => {
               </div>
               <div>
                 <div className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <span>TaskReward Pro Admin Hub</span>
+                  <span>Task and Esports Arena Admin Hub</span>
                   <span className="text-zinc-600">•</span>
                   <span className="text-cyan-400 font-medium">Tool: {adminSidebarOption}</span>
                 </div>

@@ -435,7 +435,7 @@ export const WorkerDashboard: React.FC = () => {
                   {/* Platform Badge */}
                   <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-lg border border-cyan-500/20">
-                      TaskReward Pro
+                      Task and Esports Arena
                     </span>
                   </div>
 
@@ -1439,7 +1439,7 @@ export const WorkerDashboard: React.FC = () => {
                 className="w-full py-2.5 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 font-semibold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Sign Out of TaskReward Pro</span>
+                <span>Sign Out of Task and Esports Arena</span>
               </button>
             </div>
 

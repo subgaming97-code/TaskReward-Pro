@@ -70,11 +70,11 @@ export const LoginPage: React.FC = () => {
       <header className="border-b border-white/[0.08] bg-[#090d16]/80 backdrop-blur-xl px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30">
-              TR
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs tracking-tight shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30">
+              TEA
             </div>
             <div>
-              <span className="font-extrabold text-base tracking-tight text-white">TaskReward <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Pro</span></span>
+              <span className="font-extrabold text-base tracking-tight text-white">Task and Esports <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Arena</span></span>
               <span className="ml-2 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
                 Portal
               </span>
@@ -147,7 +147,7 @@ export const LoginPage: React.FC = () => {
 
       {/* Footer */}
       <footer className="border-t border-white/[0.08] py-4 px-6 text-center text-xs text-zinc-500">
-        <p>TaskReward Pro • Rewards &amp; Management Platform</p>
+        <p>Task and Esports Arena • Rewards &amp; Esports Platform</p>
       </footer>
     </div>
   );

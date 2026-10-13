@@ -147,7 +147,7 @@ export const PublicLeaderboardView: React.FC<PublicLeaderboardViewProps> = ({
         <div>
           <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider mb-1">
             <Crown className="w-4 h-4 text-amber-400" />
-            <span>TaskReward Pro Esports Official Public Leaderboard</span>
+            <span>Task and Esports Arena Official Public Leaderboard</span>
           </div>
           <h3 className="text-base sm:text-lg font-black text-white">
             Hall of Fame &amp; Player Standings

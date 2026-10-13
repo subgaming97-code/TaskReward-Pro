@@ -16,8 +16,12 @@ export const TournamentJoinModal: React.FC<TournamentJoinModalProps> = ({
 }) => {
   const { currentWorker, registerForTournament } = useApp();
 
-  const [inGameName, setInGameName] = useState('');
-  const [inGameUid, setInGameUid] = useState('');
+  const [inGameName, setInGameName] = useState(
+    currentWorker.inGameName || ''
+  );
+  const [inGameUid, setInGameUid] = useState(
+    currentWorker.inGameUid || ''
+  );
   const [error, setError] = useState<string | null>(null);
 
   if (!tournament) return null;
@@ -101,6 +105,18 @@ export const TournamentJoinModal: React.FC<TournamentJoinModalProps> = ({
           <div className="bg-rose-500/15 border border-rose-500/30 rounded-xl p-3 text-rose-300 text-xs flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {currentWorker.esportsTournamentUid && (
+          <div className="bg-cyan-500/10 border border-cyan-500/25 p-2.5 rounded-xl flex items-center justify-between text-[11px]">
+            <span className="text-zinc-400 font-medium flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-cyan-400" />
+              <span>E-sports Tournament UID:</span>
+            </span>
+            <span className="font-mono font-bold text-cyan-300">
+              {currentWorker.esportsTournamentUid}
+            </span>
           </div>
         )}
 

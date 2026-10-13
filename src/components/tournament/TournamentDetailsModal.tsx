@@ -64,6 +64,11 @@ export const TournamentDetailsModal: React.FC<TournamentDetailsModalProps> = ({
                 {tournament.gameMode}
               </span>
               <span className="text-[10px] font-bold text-zinc-400">{tournament.game}</span>
+              {tournament.esportsTournamentUid && (
+                <span className="px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                  UID: {tournament.esportsTournamentUid}
+                </span>
+              )}
             </div>
             <h2 className="text-lg font-black text-white mt-0.5">{tournament.title}</h2>
           </div>

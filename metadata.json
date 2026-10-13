@@ -1,6 +1,6 @@
 {
-  "name": "TaskFlow Rewards & Management",
-  "description": "Enterprise multi-role task management and rewards platform with Admin, Partner, and Worker dashboards, task review workflows, and INR rewards payout.",
+  "name": "Task and Esports Arena",
+  "description": "Enterprise multi-role task management and esports tournament platform with Admin, Partner, and Worker dashboards, task review workflows, and INR rewards payout.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

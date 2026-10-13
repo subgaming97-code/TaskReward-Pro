@@ -90,13 +90,13 @@ export const Header: React.FC = () => {
               <Menu className="w-5 h-5 text-cyan-400" />
             </button>
 
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30 shrink-0">
-              <span className="tracking-tight text-white">TR</span>
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs tracking-tight shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30 shrink-0">
+              <span className="tracking-tight text-white font-black">TEA</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-lg tracking-tight text-white">
-                  TaskReward <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Pro</span>
+                  Task and Esports <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Arena</span>
                 </span>
                 <span
                   className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
@@ -201,7 +201,7 @@ export const Header: React.FC = () => {
                   type="button"
                   onClick={logout}
                   className="hidden sm:flex items-center gap-1.5 bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-xl transition-colors border border-white/[0.08] active:scale-95 touch-manipulation cursor-pointer"
-                  title="Sign out from TaskReward Pro"
+                  title="Sign out from Task and Esports Arena"
                 >
                   <LogOut className="w-3.5 h-3.5 text-zinc-400" />
                   <span>Sign Out</span>
