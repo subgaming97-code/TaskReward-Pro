@@ -74,32 +74,34 @@ export const Header: React.FC = () => {
       )}
 
       {/* Main navigation bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
           {/* Logo & Platform Name */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* Sidebar Navigation Drawer Trigger */}
             <button
               id="header-open-sidebar-btn"
               type="button"
               onClick={() => setIsAppSidebarOpen(true)}
-              className="p-2 text-zinc-400 hover:text-white rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] transition-colors cursor-pointer shrink-0"
+              className="w-10 h-10 min-w-[44px] min-h-[44px] text-zinc-400 hover:text-white rounded-xl bg-white/[0.04] hover:bg-white/[0.1] border border-white/[0.08] transition-colors cursor-pointer shrink-0 flex items-center justify-center"
               title="Open Navigation Menu"
               aria-label="Open Navigation Menu"
             >
               <Menu className="w-5 h-5 text-cyan-400" />
             </button>
 
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs tracking-tight shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30 shrink-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs tracking-tight shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30 shrink-0">
               <span className="tracking-tight text-white font-black">TEA</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight text-white">
-                  Task and Esports <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Arena</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-extrabold text-xs sm:text-base md:text-lg tracking-tight text-white truncate header-brand-title">
+                  <span className="hidden xs:inline">Task &amp; Esports </span>
+                  <span className="xs:hidden">TEA </span>
+                  <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Arena</span>
                 </span>
                 <span
-                  className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                  className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold px-1.5 sm:px-2 py-0.5 rounded-full border shrink-0 ${
                     isFirestoreConnected
                       ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                       : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
@@ -111,10 +113,10 @@ export const Header: React.FC = () => {
                       isFirestoreConnected ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-amber-400'
                     }`}
                   />
-                  <span>{isFirestoreConnected ? 'DB Online' : 'Syncing'}</span>
+                  <span className="header-badge-text">{isFirestoreConnected ? 'Online' : 'Sync'}</span>
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400 hidden sm:block">Rewards &amp; Verification Platform</p>
+              <p className="text-[10px] sm:text-[11px] text-zinc-400 hidden sm:block truncate">Rewards &amp; Verification Platform</p>
             </div>
           </div>
 
@@ -156,12 +158,12 @@ export const Header: React.FC = () => {
           {/* Role-Specific Metric Header / Actions */}
           <div className="flex items-center gap-3">
             {currentRole === 'worker' && (
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* Profile Navigation Button - Hides all user data & email from header across all devices */}
+              <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
+                {/* Profile Navigation Button */}
                 <button
                   type="button"
                   onClick={() => setWorkerTab('Profile')}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white/[0.05] border-white/[0.08] text-zinc-300 hover:text-white hover:bg-white/[0.1] active:scale-95 touch-manipulation cursor-pointer"
+                  className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-white/[0.05] border-white/[0.08] text-zinc-300 hover:text-white hover:bg-white/[0.1] active:scale-95 touch-manipulation cursor-pointer min-h-[40px]"
                   title="View Profile"
                 >
                   <User className="w-4 h-4 text-cyan-400" />
@@ -172,39 +174,42 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setWorkerTab('Tournament')}
-                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 text-amber-300 hover:from-amber-500/20 hover:to-orange-500/20 active:scale-95 touch-manipulation cursor-pointer"
+                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30 text-amber-300 hover:from-amber-500/20 hover:to-orange-500/20 active:scale-95 touch-manipulation cursor-pointer min-h-[40px]"
                   title="Esports Tournaments"
                 >
                   <Trophy className="w-3.5 h-3.5 text-amber-400" />
                   <span>Tournaments</span>
                 </button>
 
-                <div className="bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-right shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-                  <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">
-                    Available Balance
+                <div
+                  className="bg-emerald-500/10 border border-emerald-500/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-right shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                  title={`Available Balance: ₹${(Number(currentWorker?.availableBalanceINR ?? 0)).toLocaleString('en-IN')}`}
+                >
+                  <span className="text-[9px] sm:text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">
+                    Balance
                   </span>
-                  <span className="text-base font-black text-emerald-300 font-mono tabular-nums">
+                  <span className="text-xs sm:text-sm md:text-base font-black text-emerald-300 font-mono tabular-nums">
                     ₹{(Number(currentWorker?.availableBalanceINR ?? 0)).toLocaleString('en-IN')}
                   </span>
                 </div>
 
                 <button
                   onClick={() => setWorkerTab('Withdraw')}
-                  className="hidden lg:flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-zinc-950 font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-102 cursor-pointer"
+                  className="hidden lg:flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-zinc-950 font-bold text-xs px-3.5 py-2 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-102 cursor-pointer min-h-[40px]"
                 >
                   <Wallet className="w-3.5 h-3.5" />
                   <span>Withdraw</span>
                 </button>
 
-                {/* Sign Out Button (Desktop only - mobile has sign out in Profile tab) */}
+                {/* Sign Out Button (Desktop and tablet only - mobile has sign out in Profile tab) */}
                 <button
                   type="button"
                   onClick={logout}
-                  className="hidden sm:flex items-center gap-1.5 bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-xl transition-colors border border-white/[0.08] active:scale-95 touch-manipulation cursor-pointer"
+                  className="hidden sm:flex items-center gap-1.5 bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-xl transition-colors border border-white/[0.08] active:scale-95 touch-manipulation cursor-pointer min-h-[40px]"
                   title="Sign out from Task and Esports Arena"
                 >
                   <LogOut className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Sign Out</span>
+                  <span className="hidden md:inline">Sign Out</span>
                 </button>
               </div>
             )}

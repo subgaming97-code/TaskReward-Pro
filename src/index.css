@@ -1,10 +1,36 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-xs: 420px;
+}
+
 @layer base {
   :root {
     color-scheme: dark;
+
+    /* Fluid Typography Scale (using CSS clamp and viewport units) */
+    --font-size-2xs: clamp(0.625rem, 0.58rem + 0.2vw, 0.6875rem);
+    --font-size-xs: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+    --font-size-sm: clamp(0.75rem, 0.7rem + 0.3vw, 0.875rem);
+    --font-size-base: clamp(0.875rem, 0.82rem + 0.35vw, 1rem);
+    --font-size-lg: clamp(1rem, 0.92rem + 0.5vw, 1.125rem);
+    --font-size-xl: clamp(1.125rem, 1.02rem + 0.75vw, 1.35rem);
+    --font-size-2xl: clamp(1.35rem, 1.18rem + 1vw, 1.75rem);
+    --font-size-3xl: clamp(1.6rem, 1.35rem + 1.5vw, 2.25rem);
+
+    /* Fluid Spacing & Layout Units */
+    --space-fluid-page-x: clamp(0.75rem, 3.5vw, 2rem);
+    --space-fluid-page-y: clamp(0.875rem, 2.5vw, 2rem);
+    --space-fluid-gap: clamp(0.75rem, 2vw, 1.5rem);
+    --space-fluid-card-p: clamp(0.875rem, 2.2vw, 1.5rem);
+
+    /* Safe Area Notch & Virtual Bar Insets */
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-right: env(safe-area-inset-right, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-left: env(safe-area-inset-left, 0px);
   }
-  
+
   html {
     background-color: #090d16;
     color: #f1f5f9;
@@ -14,10 +40,9 @@
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     overscroll-behavior-y: contain;
-    /* Safe area CSS variables for APK / notch support */
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+    padding-top: var(--safe-top);
+    padding-left: var(--safe-left);
+    padding-right: var(--safe-right);
   }
 
   body {
@@ -36,15 +61,240 @@
     -webkit-user-select: text;
   }
 
-  /* Disable blue highlight or grey flash on tap across mobile WebViews */
+  /* Disable tap flash across mobile WebViews */
   * {
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
   }
 
   button, a {
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
+  }
+}
+
+/* ==========================================================================
+   FLUID & RESPONSIVE LAYOUT CLASSES
+   ========================================================================== */
+
+/* Universal fluid page container that centers and cushions across all screens */
+.fluid-page-container {
+  width: 100%;
+  max-width: min(88rem, 100vw);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-fluid-page-x);
+  padding-right: var(--space-fluid-page-x);
+  padding-top: var(--space-fluid-page-y);
+  padding-bottom: var(--space-fluid-page-y);
+}
+
+/* Fluid responsive card */
+.fluid-card {
+  padding: var(--space-fluid-card-p);
+  border-radius: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Fluid grids with auto-fitting columns that shrink and expand smoothly */
+.fluid-grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-fluid-gap);
+}
+
+.fluid-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-fluid-gap);
+}
+
+.fluid-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--space-fluid-gap);
+}
+
+.fluid-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: var(--space-fluid-gap);
+}
+
+/* Responsive Table Wrapper with Touch Momentum & Fade Hint */
+.responsive-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+
+/* Touch Hitbox Standards */
+@media (hover: none) and (pointer: coarse) {
+  .touch-target,
+  button:not(.no-touch-target),
+  input:not([type="checkbox"]):not([type="radio"]),
+  select {
+    min-height: 44px;
+  }
+}
+
+/* ==========================================================================
+   CSS MEDIA QUERIES FOR COMPREHENSIVE MULTI-SCREEN PERFECTION
+   ========================================================================== */
+
+/* 1. Mobile Extra Small (< 380px - iPhone SE, Galaxy Fold cover 320-360px) */
+@media (max-width: 379.98px) {
+  :root {
+    --space-fluid-page-x: 0.5rem;
+    --space-fluid-page-y: 0.75rem;
+    --space-fluid-gap: 0.625rem;
+    --space-fluid-card-p: 0.75rem;
+  }
+
+  .header-brand-title {
+    font-size: 0.8125rem;
+  }
+
+  .header-badge-text {
+    display: none !important;
+  }
+
+  .modal-dialog-box {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    padding: 1rem !important;
+    margin: 0.5rem !important;
+    border-radius: 1rem !important;
+  }
+
+  /* Compress padding on extra small screens */
+  .fluid-card {
+    padding: 0.75rem !important;
+    border-radius: 1rem !important;
+  }
+
+  /* Form actions stack vertically */
+  .xs-stack-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+}
+
+/* 2. Standard Mobile Screen (<= 639.98px - Smartphones up to 640px) */
+@media (max-width: 639.98px) {
+  /* Prevent horizontal scroll leakage */
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  /* Modals: fit mobile viewport smoothly without clipping */
+  .modal-dialog-box {
+    max-width: 94vw;
+    max-height: 88dvh;
+    border-radius: 1.25rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Responsive bottom spacing for mobile navigation */
+  .has-mobile-bottom-nav {
+    padding-bottom: max(5.5rem, calc(4.75rem + env(safe-area-inset-bottom, 0px))) !important;
+  }
+
+  /* Tables: responsive indicator */
+  .responsive-table-wrapper {
+    border-radius: 0.875rem;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Full-width action buttons on mobile */
+  .mobile-w-full {
+    width: 100% !important;
+  }
+}
+
+/* 3. Small Tablet & Phablet (640px - 767.98px) */
+@media (min-width: 640px) and (max-width: 767.98px) {
+  .tablet-grid-2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tablet-container-pad {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .modal-dialog-box {
+    max-width: 26rem;
+    border-radius: 1.5rem;
+  }
+}
+
+/* 4. Tablet Portrait & Medium Screens (768px - 1023.98px - iPad Mini, iPad, Tablets) */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .tablet-grid-2col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tablet-container-pad {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  /* Modals on tablet: centered, proportional */
+  .modal-dialog-box {
+    max-width: 28rem;
+    border-radius: 1.5rem;
+  }
+}
+
+/* 5. Desktop Screens (1024px - 1439.98px - Laptops, Workstations) */
+@media (min-width: 1024px) {
+  .desktop-grid-3col {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .desktop-grid-4col {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* 6. Ultra-wide & 4K Displays (>= 1440px) */
+@media (min-width: 1440px) {
+  .wide-contained {
+    max-width: min(88rem, 92vw);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* 7. Mobile Landscape Mode (height <= 520px and orientation landscape) */
+@media (max-height: 520px) and (orientation: landscape) {
+  header {
+    height: 3.25rem !important;
+  }
+
+  .modal-dialog-box {
+    max-height: 84vh !important;
+    overflow-y: auto !important;
+  }
+
+  .has-mobile-bottom-nav {
+    padding-bottom: 4rem !important;
+  }
+}
+
+/* 8. Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -79,4 +329,8 @@
 /* Safe area insets utilities for mobile bottom navigation */
 .safe-pb {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));
+}
+
+.safe-pt {
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem));
 }

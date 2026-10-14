@@ -238,9 +238,9 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
         <button
           type="button"
           onClick={() => onDetailsClick(tournament)}
-          className="flex-1 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 hover:text-white text-xs font-bold rounded-xl transition-colors cursor-pointer"
+          className="flex-1 py-2.5 min-h-[44px] bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-zinc-300 hover:text-white text-[11px] sm:text-xs font-bold rounded-xl transition-colors cursor-pointer text-center truncate px-2 flex items-center justify-center"
         >
-          View Rules &amp; Info
+          <span>View Rules &amp; Info</span>
         </button>
 
         {!isRegistered ? (
@@ -248,15 +248,15 @@ export const TournamentCard: React.FC<TournamentCardProps> = ({
             type="button"
             disabled={isFull || tournament.status !== 'Registration Open'}
             onClick={() => onJoinClick(tournament)}
-            className="flex-1 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+            className="flex-1 py-2.5 min-h-[44px] bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-[11px] sm:text-xs font-bold rounded-xl shadow-lg shadow-cyan-600/30 flex items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer px-2 truncate"
           >
-            <span>{isFull ? 'Slots Full' : 'Join Tournament'}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <span className="truncate">{isFull ? 'Slots Full' : 'Join Tournament'}</span>
+            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
           </button>
         ) : (
-          <span className="flex-1 py-2.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Registered</span>
+          <span className="flex-1 py-2.5 min-h-[44px] bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[11px] sm:text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 px-2 truncate">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span className="truncate">Registered</span>
           </span>
         )}
       </div>

@@ -45,9 +45,11 @@ import {
   HelpCircle,
   Trophy,
   Swords,
+  Headphones,
 } from 'lucide-react';
 import { GoogleLogo } from '../GoogleSignInModal';
 import { TournamentSection } from '../tournament/TournamentSection';
+import { OfferwallSection } from '../offerwall/OfferwallSection';
 
 export const WorkerDashboard: React.FC = () => {
   const {
@@ -68,9 +70,39 @@ export const WorkerDashboard: React.FC = () => {
     redeemVoucher,
     requestRoleChange,
     isFirestoreConnected,
+    setSupportPinModalOpen,
+    setUserSupportModalOpen,
   } = useApp();
 
   const [copiedUserId, setCopiedUserId] = useState(false);
+
+  // Hidden 5-tap gesture handler in User's Profile Section on 'Welcome User'
+  const profileWelcomeTapRef = useRef<{ count: number; timer: NodeJS.Timeout | null }>({ count: 0, timer: null });
+  const [profileTapCount, setProfileTapCount] = useState<number>(0);
+
+  const handleWelcomeTapInProfile = () => {
+    if (profileWelcomeTapRef.current.timer) {
+      clearTimeout(profileWelcomeTapRef.current.timer);
+      profileWelcomeTapRef.current.timer = null;
+    }
+
+    profileWelcomeTapRef.current.count += 1;
+    const currentCount = profileWelcomeTapRef.current.count;
+    setProfileTapCount(currentCount);
+
+    if (currentCount >= 5) {
+      profileWelcomeTapRef.current.count = 0;
+      setProfileTapCount(0);
+      setSupportPinModalOpen(true);
+      return;
+    }
+
+    profileWelcomeTapRef.current.timer = setTimeout(() => {
+      profileWelcomeTapRef.current.count = 0;
+      setProfileTapCount(0);
+      profileWelcomeTapRef.current.timer = null;
+    }, 2800);
+  };
 
   // Hidden tap handler: 5 taps for Partner PIN prompt, 8 taps for Admin PIN prompt
   const welcomeTapRef = useRef<{ count: number; timer: NodeJS.Timeout | null }>({ count: 0, timer: null });
@@ -107,7 +139,7 @@ export const WorkerDashboard: React.FC = () => {
   };
 
   // Determine active primary section based on workerTab
-  const activeSection: 'Home' | 'Tasks' | 'Tournament' | 'Earnings' | 'Profile' = (() => {
+  const activeSection: 'Home' | 'Tasks' | 'Tournament' | 'Earnings' | 'Profile' | 'Offerwall' = (() => {
     if (workerTab === 'Home') return 'Home';
     if (
       workerTab === 'Tasks' ||
@@ -128,6 +160,7 @@ export const WorkerDashboard: React.FC = () => {
       return 'Earnings';
     }
     if (workerTab === 'Profile') return 'Profile';
+    if (workerTab === 'Offerwall') return 'Offerwall';
     return 'Home';
   })();
 
@@ -293,8 +326,8 @@ export const WorkerDashboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6 pb-20 md:pb-6">
-      {/* Top Floating App Bar / Navigation Switcher (Desktop Only - Mobile uses BottomNav) */}
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6 pb-24 md:pb-8 has-mobile-bottom-nav wide-contained">
+      {/* Top Floating App Bar / Navigation Switcher (Desktop & Tablet - Mobile uses BottomNav) */}
       <div className="hidden md:flex bg-[#111726]/90 backdrop-blur-xl border border-white/[0.08] p-1.5 rounded-2xl items-center justify-between gap-2 shadow-xl shadow-black/40">
         <div className="flex items-center gap-1 overflow-x-auto py-0.5">
           {/* Home Tab Button */}
@@ -491,6 +524,16 @@ export const WorkerDashboard: React.FC = () => {
                   >
                     <Trophy className="w-4 h-4" />
                     <span>Tournament Arena</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setWorkerTab('Offerwall')}
+                    className="px-4 py-2.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-xs rounded-2xl transition-all shadow-[0_0_20px_rgba(0,210,255,0.35)] flex items-center gap-2 hover:scale-102 cursor-pointer border border-cyan-400/40"
+                  >
+                    <Sparkles className="w-4 h-4 text-cyan-200" />
+                    <span>Offerwall Rewards</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -762,6 +805,11 @@ export const WorkerDashboard: React.FC = () => {
       {activeSection === 'Tournament' && <TournamentSection />}
 
       {/* ======================================================== */}
+      {/* SECTION: OFFERWALL TAB                                   */}
+      {/* ======================================================== */}
+      {activeSection === 'Offerwall' && <OfferwallSection />}
+
+      {/* ======================================================== */}
       {/* SECTION 3: TASKS TAB                                     */}
       {/* ======================================================== */}
       {activeSection === 'Tasks' && (
@@ -845,7 +893,7 @@ export const WorkerDashboard: React.FC = () => {
               </div>
 
               {/* Tasks Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 {filteredTasks.length === 0 ? (
                   <div className="col-span-full py-16 text-center text-zinc-500 bg-[#111726]/40 border border-white/[0.06] rounded-2xl">
                     <Briefcase className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
@@ -938,8 +986,8 @@ export const WorkerDashboard: React.FC = () => {
           {tasksSubView === 'submissions' && (
             <div className="space-y-4">
               <div className="bg-[#111726]/90 backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-xl shadow-black/20">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
+                <div className="overflow-x-auto responsive-table-wrapper">
+                  <table className="w-full text-left text-xs min-w-[600px]">
                     <thead className="bg-white/[0.03] border-b border-white/[0.08] text-zinc-400 font-bold uppercase tracking-wider text-[11px]">
                       <tr>
                         <th className="py-3 px-4">Task</th>
@@ -1277,8 +1325,8 @@ export const WorkerDashboard: React.FC = () => {
           {/* Sub-View 2: Withdrawal History */}
           {earningsSubView === 'history' && (
             <div className="bg-[#111726]/90 backdrop-blur-xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-xl shadow-black/20">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+              <div className="overflow-x-auto responsive-table-wrapper">
+                <table className="w-full text-left text-xs min-w-[550px]">
                   <thead className="bg-white/[0.03] border-b border-white/[0.08] text-zinc-400 font-bold uppercase tracking-wider text-[11px]">
                     <tr>
                       <th className="py-3 px-4">Amount</th>
@@ -1352,12 +1400,46 @@ export const WorkerDashboard: React.FC = () => {
       {/* ======================================================== */}
       {activeSection === 'Profile' && (
         <div className="space-y-6 animate-in fade-in-50 slide-in-from-bottom-2 duration-300 ease-out">
-          {/* Header */}
-          <div className="border-b border-white/[0.08] pb-4">
-            <h2 className="text-xl font-bold text-white tracking-tight">Account &amp; Security Profile</h2>
-            <p className="text-xs text-zinc-400">
-              Manage your personal identity, linked Google account credentials, and platform security.
-            </p>
+          {/* Welcome User Header */}
+          <div className="bg-gradient-to-r from-cyan-950/40 via-[#111726] to-blue-950/40 border border-white/[0.08] rounded-3xl p-6 sm:p-7 shadow-xl relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="relative z-10 space-y-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-lg border border-cyan-500/20">
+                  Account &amp; Security Profile
+                </span>
+              </div>
+
+              {/* Prominent 'Welcome User' Header with hidden 5-tap gesture */}
+              <button
+                id="profile-welcome-user-gesture-btn"
+                type="button"
+                onClick={handleWelcomeTapInProfile}
+                className="text-left select-none focus:outline-hidden cursor-pointer active:scale-98 transition-transform group"
+              >
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight group-hover:text-cyan-400 transition-colors flex items-center gap-3">
+                  <span>Welcome User</span>
+                  <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 font-medium">
+                    {currentWorker.eid || currentWorker.uniqueUserId}
+                  </span>
+                </h1>
+              </button>
+
+              <p className="text-xs text-zinc-400">
+                Manage your personal identity, linked Google credentials, and 24/7 customer support.
+              </p>
+            </div>
+
+            {/* Quick 24/7 Help Desk Launcher for normal user queries */}
+            <div className="relative z-10 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setUserSupportModalOpen(true)}
+                className="px-4 py-2.5 bg-gradient-to-r from-cyan-600/30 to-blue-600/30 hover:from-cyan-600/50 hover:to-blue-600/50 text-cyan-200 border border-cyan-500/30 rounded-2xl text-xs font-bold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer shadow-lg shadow-cyan-950/50"
+              >
+                <Headphones className="w-4 h-4 text-cyan-400" />
+                <span>Customer Support 24/7</span>
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

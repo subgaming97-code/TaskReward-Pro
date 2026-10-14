@@ -147,17 +147,17 @@ export const PartnerPanel: React.FC = () => {
         </div>
 
         {/* Financial Escrow Balance & Switcher */}
-        <div className="flex items-center gap-4">
-          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl px-5 py-2.5 text-right shadow-sm">
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full md:w-auto">
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl px-4 sm:px-5 py-2 sm:py-2.5 text-right shadow-sm flex-1 sm:flex-initial">
             <span className="text-[10px] uppercase font-bold text-emerald-400/80 block tracking-wider">
               Earned Commission
             </span>
-            <span className="text-2xl font-black text-emerald-400 font-mono">
+            <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
               ₹{(Number(currentPartner?.earnedBalanceINR ?? 0)).toLocaleString('en-IN')}
             </span>
           </div>
 
-          <div className="hidden sm:block text-xs">
+          <div className="text-xs flex-1 sm:flex-initial">
             <span className="text-zinc-400 block text-[10px] uppercase font-bold mb-1">Switch Partner</span>
             <select
               value={selectedPartnerName}
@@ -171,7 +171,7 @@ export const PartnerPanel: React.FC = () => {
                   setSelectedPartnerName(e.target.value);
                 }
               }}
-              className="px-3 py-2 bg-white/[0.04] border border-white/[0.1] rounded-xl text-xs font-semibold text-zinc-200 focus:outline-hidden focus:border-emerald-500 cursor-pointer"
+              className="w-full sm:w-auto px-3 py-2 bg-white/[0.04] border border-white/[0.1] rounded-xl text-xs font-semibold text-zinc-200 focus:outline-hidden focus:border-emerald-500 cursor-pointer"
             >
               {partnerPanels.map((p) => (
                 <option key={p.code} value={p.uniquePartnerName} className="bg-[#111726] text-zinc-100">

@@ -583,7 +583,7 @@ export const TournamentSection: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredTournaments.map((tournament) => (
                 <TournamentCard
                   key={tournament.id}
@@ -592,8 +592,8 @@ export const TournamentSection: React.FC = () => {
                     tournament.registeredPlayerIds?.includes(currentWorker.id) || false
                   }
                   onJoinClick={(t) => {
-                    if (!currentWorker.hasTournamentProfile || !currentWorker.esportsTournamentUid) {
-                      notify('Please complete your Tournament Profile before registering!');
+                    if (!currentWorker.inGameName && !currentWorker.hasTournamentProfile) {
+                      notify('Please set up your player IGN in Tournament Profile before registering!');
                       setProfileModalOpen(true);
                     } else {
                       setJoiningTournament(t);

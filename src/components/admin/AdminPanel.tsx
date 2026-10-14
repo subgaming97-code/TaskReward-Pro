@@ -333,16 +333,17 @@ export const AdminPanel: React.FC = () => {
             </div>
 
             {/* Search Box labeled 'Search User by E-ID' */}
-            <div className="relative">
-              <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+            <div className="relative w-full md:w-auto">
+              <form onSubmit={handleSearchSubmit} className="flex flex-wrap sm:flex-nowrap items-center gap-2">
                 <label
                   htmlFor="admin-search-user-by-eid"
                   className="text-xs font-bold text-zinc-300 whitespace-nowrap flex items-center gap-1.5"
                 >
                   <Search className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span>Search User by E-ID:</span>
+                  <span className="hidden xs:inline sm:inline">Search User by E-ID:</span>
+                  <span className="xs:hidden sm:hidden">E-ID:</span>
                 </label>
-                <div className="relative">
+                <div className="relative flex-1 sm:flex-initial">
                   <input
                     id="admin-search-user-by-eid"
                     type="text"
@@ -354,7 +355,7 @@ export const AdminPanel: React.FC = () => {
                     }}
                     onFocus={() => setShowSuggestions(true)}
                     placeholder="e.g. EID-928410"
-                    className="w-44 sm:w-56 pl-3 pr-7 py-1.5 text-xs font-mono bg-white/[0.04] border border-white/[0.1] rounded-xl focus:outline-hidden focus:border-cyan-400 text-white placeholder:text-zinc-500"
+                    className="w-full sm:w-52 pl-3 pr-7 py-1.5 text-xs font-mono bg-white/[0.04] border border-white/[0.1] rounded-xl focus:outline-hidden focus:border-cyan-400 text-white placeholder:text-zinc-500"
                   />
                   {searchEId && (
                     <button
@@ -371,30 +372,33 @@ export const AdminPanel: React.FC = () => {
                     </button>
                   )}
                 </div>
-                <button
-                  type="submit"
-                  className="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-zinc-950 text-xs font-bold rounded-xl transition-colors shadow-xs whitespace-nowrap cursor-pointer"
-                >
-                  Open Account
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowRewardsDrawer(!showRewardsDrawer)}
-                  className={`px-3 py-1.5 border text-xs font-bold rounded-xl transition-colors shadow-xs whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
-                    showRewardsDrawer
-                      ? 'bg-cyan-500 text-zinc-950 border-cyan-400'
-                      : 'bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 border-white/[0.08]'
-                  }`}
-                  title="Toggle 30-day INR rewards distribution bar chart"
-                >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span>30D Rewards Chart</span>
-                  {showRewardsDrawer ? (
-                    <ChevronUp className="w-3 h-3" />
-                  ) : (
-                    <ChevronDown className="w-3 h-3" />
-                  )}
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="submit"
+                    className="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-zinc-950 text-xs font-bold rounded-xl transition-colors shadow-xs whitespace-nowrap cursor-pointer"
+                  >
+                    Open Account
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowRewardsDrawer(!showRewardsDrawer)}
+                    className={`px-3 py-1.5 border text-xs font-bold rounded-xl transition-colors shadow-xs whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+                      showRewardsDrawer
+                        ? 'bg-cyan-500 text-zinc-950 border-cyan-400'
+                        : 'bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 border-white/[0.08]'
+                    }`}
+                    title="Toggle 30-day INR rewards distribution bar chart"
+                  >
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">30D Rewards Chart</span>
+                    <span className="sm:hidden">Chart</span>
+                    {showRewardsDrawer ? (
+                      <ChevronUp className="w-3 h-3" />
+                    ) : (
+                      <ChevronDown className="w-3 h-3" />
+                    )}
+                  </button>
+                </div>
               </form>
 
               {/* Suggestions Dropdown */}

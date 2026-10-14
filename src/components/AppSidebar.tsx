@@ -271,6 +271,16 @@ export const AppSidebar: React.FC = () => {
       },
       active: workerTab === 'Profile',
     },
+    {
+      id: 'Offerwall',
+      label: 'Offerwall',
+      icon: Sparkles,
+      onClick: () => {
+        setWorkerTab('Offerwall');
+        setIsAppSidebarOpen(false);
+      },
+      active: workerTab === 'Offerwall',
+    },
   ];
 
   return (

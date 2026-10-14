@@ -21,6 +21,7 @@ import {
   History,
   ShieldAlert,
   Wallet,
+  Headphones,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -43,6 +44,8 @@ export const AdminSidebar: React.FC<{
     systemRequests,
     adminActivityLogs,
     depositRequests,
+    customerQueries,
+    setIsSupportPanelOpen,
   } = useApp();
 
   // Calculate live badge counts
@@ -55,6 +58,7 @@ export const AdminSidebar: React.FC<{
   const pendingAppealsCount = submissions.filter((s) => s.appealStatus === 'pending').length;
   const holdCount = submissions.filter((s) => s.status === 'on_hold').length;
   const pendingDepositsCount = depositRequests.filter((d) => d.status === 'Pending').length;
+  const pendingCustomerSupportCount = customerQueries.filter((q) => q.status === 'open').length;
 
   const sidebarItems: SidebarItem[] = [
     { id: 'Q-U-U-E-U-E', label: 'Q-U-U-E-U-E', icon: ListOrdered, badge: pendingQueueCount },

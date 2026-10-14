@@ -18,6 +18,7 @@ import {
   Info,
   Clock,
   Sparkles,
+  Headphones,
 } from 'lucide-react';
 
 interface PinEditState {
@@ -32,6 +33,7 @@ export const AdministrationSection: React.FC = () => {
     admin: false,
     moderator: false,
     partner: false,
+    support: false,
     A: false,
     B: false,
     C: false,
@@ -43,6 +45,7 @@ export const AdministrationSection: React.FC = () => {
     admin: roleSecurityPins.adminPin || '',
     moderator: roleSecurityPins.moderatorPin || '',
     partner: roleSecurityPins.partnerPin || '',
+    support: roleSecurityPins.supportPin || '2470',
     A: roleSecurityPins.partnerPanelPins?.['A'] || '',
     B: roleSecurityPins.partnerPanelPins?.['B'] || '',
     C: roleSecurityPins.partnerPanelPins?.['C'] || '',
@@ -124,6 +127,7 @@ export const AdministrationSection: React.FC = () => {
       admin: roleSecurityPins.adminPin || '',
       moderator: '',
       partner: '',
+      support: '2470',
       A: '',
       B: '',
       C: '',
@@ -225,7 +229,7 @@ export const AdministrationSection: React.FC = () => {
       )}
 
       {/* PRIMARY ROLES PIN MANAGEMENT GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 1. ADMINISTRATOR ROLE PIN */}
         <div className="bg-[#111728] border border-blue-500/30 rounded-3xl p-6 shadow-xl space-y-5 relative overflow-hidden">
           <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
@@ -427,6 +431,111 @@ export const AdministrationSection: React.FC = () => {
               </div>
               {pinErrors.moderator && (
                 <p className="text-[11px] text-rose-400 font-medium">{pinErrors.moderator}</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 3. 24/7 CUSTOMER SUPPORT PANEL PIN */}
+        <div className="bg-[#111728] border border-cyan-500/30 rounded-3xl p-6 shadow-xl space-y-5 relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shadow-sm">
+                <Headphones className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span>24/7 Support Desk PIN</span>
+                  <span className="text-[10px] font-mono uppercase bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                    5-Tap Access
+                  </span>
+                </h3>
+                <p className="text-[11px] text-zinc-400">
+                  Unlocks 24/7 Support Desk via 5-tap gesture on &apos;Welcome User&apos; in Profile
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between bg-white/[0.02] border border-white/[0.06] rounded-2xl p-4">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider block">
+                  Current Active Support PIN
+                </span>
+                <span className="font-mono text-2xl font-black text-cyan-400 tracking-widest">
+                  {showPins.support
+                    ? (roleSecurityPins.supportPin || '2470')
+                    : (roleSecurityPins.supportPin ? '••••' : '2470')}
+                </span>
+                <span className="text-[10px] text-cyan-400/80 block mt-0.5 font-medium">
+                  {roleSecurityPins.supportPin ? 'Custom Support PIN active (Default: 2470)' : 'Default: 2470'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => toggleVisibility('support')}
+                  className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  title={showPins.support ? 'Hide PIN' : 'Reveal PIN'}
+                >
+                  {showPins.support ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCopy('support', roleSecurityPins.supportPin || '2470')}
+                  className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  title="Copy PIN"
+                >
+                  {copiedKey === 'support' ? (
+                    <Check className="w-4 h-4 text-emerald-400" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Change Support PIN Form */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-zinc-300 block">
+                Update 24/7 Support Security PIN:
+              </label>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Lock className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
+                  <input
+                    type="text"
+                    maxLength={4}
+                    inputMode="numeric"
+                    value={pinInputs.support || ''}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 4);
+                      setPinInputs((prev) => ({ ...prev, support: digits }));
+                      setPinErrors((prev) => ({ ...prev, support: null }));
+                    }}
+                    placeholder="Enter 4-digit Support PIN"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.1] rounded-xl font-mono text-base font-bold text-white placeholder:text-zinc-600 focus:outline-hidden focus:border-cyan-400 tracking-wider"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleSavePin(
+                      'support',
+                      '24/7 Customer Support Desk',
+                      roleSecurityPins.supportPin || '2470'
+                    )
+                  }
+                  className="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-cyan-600/30 cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Update PIN</span>
+                </button>
+              </div>
+              {pinErrors.support && (
+                <p className="text-[11px] text-rose-400 font-medium">{pinErrors.support}</p>
               )}
             </div>
           </div>

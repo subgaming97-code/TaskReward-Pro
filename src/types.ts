@@ -34,6 +34,7 @@ export interface RoleSecurityPins {
   moderatorPin: string;
   partnerPin: string;
   partnerPanelPins: Record<string, string>;
+  supportPin: string;
 }
 
 export type PartnerTab = 'Assign Requests' | 'Upload' | 'Withdrawal Request' | 'Activity Log';
@@ -55,6 +56,7 @@ export type WorkerTab =
   | 'Tournament'
   | 'Earnings'
   | 'Profile'
+  | 'Offerwall'
   | 'Available Tasks'
   | 'My Submissions'
   | 'Submission Status'
@@ -467,5 +469,52 @@ export interface DepositRequest {
   reviewedBy?: string;
   reviewNotes?: string;
   approvalWindowMessage?: string;
+}
+
+export type SupportQueryCategory =
+  | 'tasks_submissions'
+  | 'earnings_withdrawals'
+  | 'esports_tournaments'
+  | 'account_verification'
+  | 'deposits_payments'
+  | 'general_platform'
+  | 'technical_bug';
+
+export type SupportQueryPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export type SupportQueryStatus = 'open' | 'in_progress' | 'waiting_user' | 'resolved' | 'closed';
+
+export interface SupportChatMessage {
+  id: string;
+  sender: 'user' | 'support_agent' | 'system_bot';
+  senderName: string;
+  senderRole?: string;
+  message: string;
+  timestamp: string;
+  isStaff?: boolean;
+}
+
+export interface CustomerSupportQuery {
+  id: string;
+  queryNumber: string; // e.g. "CS-8041"
+  userId: string;
+  userEid: string;
+  userName: string;
+  userEmail: string;
+  userPhone?: string;
+  category: SupportQueryCategory;
+  priority: SupportQueryPriority;
+  status: SupportQueryStatus;
+  subject: string;
+  description: string;
+  messages: SupportChatMessage[];
+  assignedAgent?: string;
+  internalNotes?: string;
+  compensationINR?: number;
+  slaDeadlineMinutes: number;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
 }
 

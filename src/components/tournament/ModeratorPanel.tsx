@@ -188,8 +188,8 @@ export const ModeratorPanel: React.FC<ModeratorPanelProps> = ({
 
     window.addEventListener('mousemove', handleUserActivity);
     window.addEventListener('keydown', handleUserActivity);
-    window.addEventListener('touchstart', handleUserActivity);
-    window.addEventListener('scroll', handleUserActivity);
+    window.addEventListener('touchstart', handleUserActivity, { passive: true });
+    window.addEventListener('scroll', handleUserActivity, { passive: true });
 
     const interval = setInterval(() => {
       const elapsed = Math.floor((Date.now() - lastActivityRef.current) / 1000);

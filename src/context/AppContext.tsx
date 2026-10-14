@@ -44,6 +44,11 @@ import {
   DepositRequest,
   DepositRequestStatus,
   GamingPreferences,
+  CustomerSupportQuery,
+  SupportQueryCategory,
+  SupportQueryPriority,
+  SupportQueryStatus,
+  SupportChatMessage,
 } from '../types';
 
 export const DEFAULT_ROLE_PINS: RoleSecurityPins = {
@@ -51,6 +56,7 @@ export const DEFAULT_ROLE_PINS: RoleSecurityPins = {
   moderatorPin: '', // No default PIN for moderator; must be set exclusively by administrator
   partnerPin: '', // No default PIN for partner; must be set exclusively by administrator
   partnerPanelPins: {}, // No default PINs for individual panels; must be set exclusively by administrator
+  supportPin: '2470', // Default initial 24/7 Support Panel PIN; fully configurable and managed via Admin Panel
 };
 
 export const LEGACY_DEFAULT_PINS = new Set([
@@ -261,7 +267,11 @@ interface AppContextType {
   addTournament: (newTourn: Omit<Tournament, 'id' | 'registeredSlots' | 'createdAt'>) => Tournament;
   updateTournament: (id: string, updates: Partial<Tournament>) => void;
   deleteTournament: (id: string) => void;
-  registerForTournament: (tournamentId: string, inGameName: string, inGameUid: string) => { success: boolean; message: string };
+  registerForTournament: (
+    tournamentId: string,
+    inGameName?: string,
+    inGameUid?: string
+  ) => Promise<{ success: boolean; message: string }>;
   updateParticipant: (participantId: string, updates: Partial<TournamentParticipant>) => void;
   removeParticipant: (participantId: string) => void;
   awardTournamentPrizes: (
@@ -283,11 +293,25 @@ interface AppContextType {
   updateMatchResult: (id: string, updates: Partial<TournamentMatchResult>) => void;
   deleteMatchResult: (id: string) => void;
 
-  // Customer Support Tickets
+  // Customer Support Tickets (Esports / Tournament)
   supportTickets: TournamentSupportTicket[];
   createSupportTicket: (ticket: Omit<TournamentSupportTicket, 'id' | 'ticketNumber' | 'createdAt' | 'updatedAt' | 'status'>) => TournamentSupportTicket;
   updateSupportTicket: (id: string, updates: Partial<TournamentSupportTicket>) => void;
   resolveSupportTicket: (id: string, reply: string, compensationINR?: number) => void;
+
+  // 24/7 Customer Support Query Management System & Support Panel
+  customerQueries: CustomerSupportQuery[];
+  createCustomerQuery: (data: Omit<CustomerSupportQuery, 'id' | 'queryNumber' | 'createdAt' | 'updatedAt' | 'status' | 'messages'>) => CustomerSupportQuery;
+  addCustomerQueryMessage: (queryId: string, message: string, sender: 'user' | 'support_agent', senderName?: string) => void;
+  updateCustomerQueryStatus: (queryId: string, status: SupportQueryStatus, agentName?: string, internalNotes?: string) => void;
+  resolveCustomerQuery: (queryId: string, resolutionSummary: string, compensationINR?: number, agentName?: string) => void;
+  isSupportPanelOpen: boolean;
+  setIsSupportPanelOpen: (open: boolean) => void;
+  supportPinModalOpen: boolean;
+  setSupportPinModalOpen: (open: boolean) => void;
+  verifySupportPin: (pin: string) => boolean;
+  userSupportModalOpen: boolean;
+  setUserSupportModalOpen: (open: boolean) => void;
 
   // Role Security PINs Management
   roleSecurityPins: RoleSecurityPins;
@@ -462,9 +486,9 @@ const INITIAL_WORKERS: Worker[] = [
     name: 'Arati Bera',
     email: 'aratibera754@gmail.com',
     phone: '+91 98310 54321',
-    availableBalanceINR: 0,
-    totalEarnedINR: 0,
-    completedTasksCount: 0,
+    availableBalanceINR: 500,
+    totalEarnedINR: 1200,
+    completedTasksCount: 15,
     status: 'Active',
     joinedDate: '2026-02-10',
     upiId: 'aratibera@okhdfcbank',
@@ -475,6 +499,19 @@ const INITIAL_WORKERS: Worker[] = [
       googleId: 'goog_aratibera754',
       avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=aratibera754',
       signedInAt: '2026-09-21 08:55',
+    },
+    inGameName: 'Arati_SniperX',
+    inGameUid: '782910482',
+    esportsTournamentUid: 'ESP-492019',
+    hasTournamentProfile: true,
+    gamingPreferences: {
+      preferredMode: 'Solo',
+      preferredMap: 'Bermuda',
+      playstyle: 'Sniper',
+      device: 'Android Mobile',
+      preferredTime: 'Evening (5 PM - 9 PM)',
+      competitiveExperience: 'Tournament Veteran',
+      favoriteWeaponCategory: 'Sniper',
     },
   },
 ];
@@ -1594,6 +1631,182 @@ export const INITIAL_SUPPORT_TICKETS: TournamentSupportTicket[] = [
   },
 ];
 
+export const INITIAL_CUSTOMER_QUERIES: CustomerSupportQuery[] = [
+  {
+    id: 'csq-1001',
+    queryNumber: 'CS-9102',
+    userId: 'w-101',
+    userEid: 'EID-1002',
+    userName: 'Alex Rivera',
+    userEmail: 'alex.rivera@example.com',
+    userPhone: '+91 98765 43210',
+    category: 'earnings_withdrawals',
+    priority: 'urgent',
+    status: 'open',
+    subject: 'UPI Payout ₹850 marked pending for over 45 minutes',
+    description: 'I requested a withdrawal of ₹850 to my UPI ID (alex.rivera@okhdfcbank). Balance was deducted from my account but status is still Pending. Needed urgently for recharge.',
+    slaDeadlineMinutes: 1440,
+    assignedAgent: 'Agent Maya (Senior Ops)',
+    internalNotes: 'Payment gateway IMPS batch queued. Reconciled with HDFC payout gateway.',
+    createdAt: '2026-10-13 09:15 AM',
+    updatedAt: '2026-10-13 09:20 AM',
+    messages: [
+      {
+        id: 'msg-csq-1',
+        sender: 'user',
+        senderName: 'Alex Rivera',
+        message: 'I requested a withdrawal of ₹850 to my UPI ID (alex.rivera@okhdfcbank). Balance was deducted from my account but status is still Pending. Needed urgently for recharge.',
+        timestamp: '2026-10-13 09:15 AM',
+        isStaff: false,
+      },
+      {
+        id: 'msg-csq-2',
+        sender: 'system_bot',
+        senderName: '24/7 AI Desk',
+        senderRole: 'Automated Triaging Engine',
+        message: '24/7 Live Desk Acknowledgement: Query assigned ticket CS-9102. High-priority payout queue alerted. Our 15-minute SLA timer has started.',
+        timestamp: '2026-10-13 09:16 AM',
+        isStaff: true,
+      },
+      {
+        id: 'msg-csq-3',
+        sender: 'support_agent',
+        senderName: 'Agent Maya (Senior Ops)',
+        senderRole: '24/7 Support Lead',
+        message: 'Hi Alex! Reviewing your IMPS settlement batch with our payment banking partner now. Expect funds to reflect shortly.',
+        timestamp: '2026-10-13 09:20 AM',
+        isStaff: true,
+      },
+    ],
+  },
+  {
+    id: 'csq-1002',
+    queryNumber: 'CS-9103',
+    userId: 'w-102',
+    userEid: 'EID-1003',
+    userName: 'Sarah Chen',
+    userEmail: 'sarah.chen@example.com',
+    userPhone: '+91 91234 56789',
+    category: 'tasks_submissions',
+    priority: 'high',
+    status: 'in_progress',
+    subject: 'Proof verification hold on App Testing Task #104',
+    description: 'Submitted proof for Mobile App Testing task yesterday. Status changed to On Hold asking for re-verification. Re-uploaded high resolution capture.',
+    slaDeadlineMinutes: 1440,
+    assignedAgent: 'Agent Rahul (QA Desk)',
+    internalNotes: 'Worker provided clean second screenshot confirming task completion.',
+    createdAt: '2026-10-13 08:30 AM',
+    updatedAt: '2026-10-13 08:45 AM',
+    messages: [
+      {
+        id: 'msg-csq-4',
+        sender: 'user',
+        senderName: 'Sarah Chen',
+        message: 'Submitted proof for Mobile App Testing task yesterday. Status changed to On Hold asking for re-verification. Re-uploaded high resolution capture.',
+        timestamp: '2026-10-13 08:30 AM',
+        isStaff: false,
+      },
+      {
+        id: 'msg-csq-5',
+        sender: 'system_bot',
+        senderName: '24/7 AI Desk',
+        senderRole: 'Automated Triaging Engine',
+        message: '24/7 Automated Notification: Assigned to QA Review Team. SLA Target: Under 30 minutes.',
+        timestamp: '2026-10-13 08:31 AM',
+        isStaff: true,
+      },
+      {
+        id: 'msg-csq-6',
+        sender: 'support_agent',
+        senderName: 'Agent Rahul (QA Desk)',
+        senderRole: 'QA Support Specialist',
+        message: 'Hello Sarah, I inspected your re-uploaded verification. The app session matches requirements. Approving submission momentarily.',
+        timestamp: '2026-10-13 08:45 AM',
+        isStaff: true,
+      },
+    ],
+  },
+  {
+    id: 'csq-1003',
+    queryNumber: 'CS-9104',
+    userId: 'w-100',
+    userEid: 'EID-1001',
+    userName: 'Arati Bera',
+    userEmail: 'arati.bera@gmail.com',
+    userPhone: '+91 99887 76655',
+    category: 'deposits_payments',
+    priority: 'urgent',
+    status: 'open',
+    subject: 'Deposit of ₹250 via Google Pay UTR pending confirmation',
+    description: 'Transferred ₹250 for esports entry pass using UPI ID soumodipbera@fam. UTR reference: 409182390192. Please credit wallet balance.',
+    slaDeadlineMinutes: 1440,
+    assignedAgent: 'Agent Priya (Finance)',
+    internalNotes: 'Bank statement reconciliation needed for UPI 409182390192.',
+    createdAt: '2026-10-13 09:40 AM',
+    updatedAt: '2026-10-13 09:40 AM',
+    messages: [
+      {
+        id: 'msg-csq-7',
+        sender: 'user',
+        senderName: 'Arati Bera',
+        message: 'Transferred ₹250 for esports entry pass using UPI ID soumodipbera@fam. UTR reference: 409182390192. Please credit wallet balance.',
+        timestamp: '2026-10-13 09:40 AM',
+        isStaff: false,
+      },
+      {
+        id: 'msg-csq-8',
+        sender: 'system_bot',
+        senderName: '24/7 AI Desk',
+        senderRole: 'Automated Triaging Engine',
+        message: '24/7 Finance Gateway Alert: Urgent deposit verification ticket generated. Finance on-call agent alerted.',
+        timestamp: '2026-10-13 09:41 AM',
+        isStaff: true,
+      },
+    ],
+  },
+  {
+    id: 'csq-1004',
+    queryNumber: 'CS-9105',
+    userId: 'w-103',
+    userEid: 'EID-1004',
+    userName: 'Priya Sharma',
+    userEmail: 'priya.sharma@example.com',
+    userPhone: '+91 97112 33445',
+    category: 'esports_tournaments',
+    priority: 'medium',
+    status: 'resolved',
+    subject: 'Tournament room password delivery delay',
+    description: 'Room password showed "Awaiting Release" until 5 minutes before lobby launch. Received in time but requested clarification.',
+    slaDeadlineMinutes: 1440,
+    assignedAgent: 'Agent Rahul (Esports)',
+    compensationINR: 50,
+    resolvedAt: '2026-10-12 08:30 PM',
+    resolvedBy: 'Agent Rahul (Esports)',
+    internalNotes: 'Room credentials sync resolved. Added ₹50 goodwill credit to player wallet.',
+    createdAt: '2026-10-12 07:45 PM',
+    updatedAt: '2026-10-12 08:30 PM',
+    messages: [
+      {
+        id: 'msg-csq-9',
+        sender: 'user',
+        senderName: 'Priya Sharma',
+        message: 'Room password showed "Awaiting Release" until 5 minutes before lobby launch. Received in time but requested clarification.',
+        timestamp: '2026-10-12 07:45 PM',
+        isStaff: false,
+      },
+      {
+        id: 'msg-csq-10',
+        sender: 'support_agent',
+        senderName: 'Agent Rahul (Esports)',
+        senderRole: 'Esports Support Moderator',
+        message: 'Hi Priya! Room passwords are scheduled 15 mins prior; yesterday our lobby anti-cheat check caused a 5 min hold. As a token of goodwill, we credited ₹50 to your in-app wallet!',
+        timestamp: '2026-10-12 08:30 PM',
+        isStaff: true,
+      },
+    ],
+  },
+];
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -1619,12 +1832,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const adminPin = parsed.adminPin && !LEGACY_DEFAULT_PINS.has(parsed.adminPin) ? parsed.adminPin : '';
         const moderatorPin = parsed.moderatorPin && !LEGACY_DEFAULT_PINS.has(parsed.moderatorPin) ? parsed.moderatorPin : '';
         const partnerPin = parsed.partnerPin && !LEGACY_DEFAULT_PINS.has(parsed.partnerPin) ? parsed.partnerPin : '';
+        const supportPin = parsed.supportPin && !LEGACY_DEFAULT_PINS.has(parsed.supportPin) ? parsed.supportPin : (parsed.supportPin || '2470');
 
         return {
           adminPin,
           moderatorPin,
           partnerPin,
           partnerPanelPins: cleanPanelPins,
+          supportPin: supportPin || '2470',
         };
       }
       return DEFAULT_ROLE_PINS;
@@ -1634,8 +1849,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   });
 
   const [isAppSidebarOpen, setIsAppSidebarOpen] = useState<boolean>(false);
+  const [isSupportPanelOpen, setIsSupportPanelOpen] = useState<boolean>(false);
+  const [supportPinModalOpen, setSupportPinModalOpen] = useState<boolean>(false);
+  const [userSupportModalOpen, setUserSupportModalOpen] = useState<boolean>(false);
 
-  const updateRolePin = (role: 'admin' | 'moderator' | 'partner' | string, newPin: string) => {
+  const updateRolePin = (role: 'admin' | 'moderator' | 'partner' | 'support' | string, newPin: string) => {
     const clean = newPin.trim();
     if (!clean) return;
     if (LEGACY_DEFAULT_PINS.has(clean)) {
@@ -1650,6 +1868,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updated = { ...prev, moderatorPin: clean };
       } else if (role === 'partner') {
         updated = { ...prev, partnerPin: clean };
+      } else if (role === 'support') {
+        updated = { ...prev, supportPin: clean };
       } else {
         updated = {
           ...prev,
@@ -1669,12 +1889,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const resetRolePins = () => {
     setRoleSecurityPins((prev) => {
       // Preserves administrator's custom PIN while clearing all role PINs to empty.
-      // No default/placeholder PINs exist.
+      // Support PIN resets to configurable default '2470'.
       const updated: RoleSecurityPins = {
         adminPin: prev.adminPin || '',
         moderatorPin: '',
         partnerPin: '',
         partnerPanelPins: {},
+        supportPin: prev.supportPin || '2470',
       };
       try {
         localStorage.setItem(STORAGE_KEY + '_role_pins', JSON.stringify(updated));
@@ -1696,6 +1917,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const clean = pin.trim();
     if (!roleSecurityPins.moderatorPin || LEGACY_DEFAULT_PINS.has(clean)) return false;
     return clean === roleSecurityPins.moderatorPin;
+  };
+
+  const verifySupportPin = (pin: string): boolean => {
+    const clean = pin.trim();
+    if (!clean) return false;
+    const active = roleSecurityPins.supportPin || '2470';
+    return clean === active;
   };
 
   const [pinModalOpen, setPinModalOpen] = useState<boolean>(false);
@@ -2078,6 +2306,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return stored ? JSON.parse(stored) : INITIAL_DEPOSIT_REQUESTS;
     } catch {
       return INITIAL_DEPOSIT_REQUESTS;
+    }
+  });
+
+  const [customerQueries, setCustomerQueries] = useState<CustomerSupportQuery[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY + '_customer_queries');
+      return stored ? JSON.parse(stored) : INITIAL_CUSTOMER_QUERIES;
+    } catch {
+      return INITIAL_CUSTOMER_QUERIES;
     }
   });
 
@@ -3477,11 +3714,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     notify('Tournament deleted.');
   };
 
-  const registerForTournament = (
+  const registerForTournament = async (
     tournamentId: string,
-    inGameName: string,
-    inGameUid: string
-  ): { success: boolean; message: string } => {
+    inGameName?: string,
+    inGameUid?: string
+  ): Promise<{ success: boolean; message: string }> => {
     const targetTournament = tournaments.find((t) => t.id === tournamentId);
     if (!targetTournament) {
       return { success: false, message: 'Tournament not found.' };
@@ -3495,9 +3732,79 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return { success: false, message: 'You are already registered for this tournament.' };
     }
 
+    // Link user data via User ID from profile table ('workers')
+    const targetUserId = currentWorker.id;
+    const targetUniqueUserId = currentWorker.uniqueUserId || currentWorker.eid;
+
+    // 1. Fetch from local workers state matching User ID
+    let profileRecord: Worker =
+      workers.find((w) => w.id === targetUserId || (targetUniqueUserId && w.uniqueUserId === targetUniqueUserId)) ||
+      currentWorker;
+
+    // 2. Fetch fresh profile from Firestore 'workers' table to ensure latest IGN and UID
+    try {
+      if (targetUserId) {
+        const dbProfile = await getSingleDocument<Worker>('workers', targetUserId);
+        if (dbProfile) {
+          profileRecord = { ...profileRecord, ...dbProfile };
+        }
+      }
+    } catch (err) {
+      console.warn('Firestore profile table lookup notice:', err);
+    }
+
+    // 3. Automatically fetch IGN and UID from linked profile
+    const autoIgn = (inGameName || profileRecord.inGameName || profileRecord.name || '').trim();
+    const autoUid = (
+      inGameUid ||
+      profileRecord.inGameUid ||
+      profileRecord.esportsTournamentUid ||
+      profileRecord.uniqueUserId ||
+      profileRecord.eid ||
+      ''
+    ).trim();
+
+    if (!autoIgn) {
+      return {
+        success: false,
+        message: 'No In-Game Name (IGN) found in your profile. Please complete your Tournament Profile before registering.',
+      };
+    }
+
+    if (!autoUid) {
+      return {
+        success: false,
+        message: 'No Game UID found in your profile. Please complete your Tournament Profile before registering.',
+      };
+    }
+
+    // If custom inGameName/inGameUid was supplied, sync it back to profile table linked by User ID
+    if (
+      (inGameName && inGameName.trim() !== profileRecord.inGameName) ||
+      (inGameUid && inGameUid.trim() !== profileRecord.inGameUid)
+    ) {
+      const updatedProfile: Worker = {
+        ...profileRecord,
+        inGameName: autoIgn,
+        inGameUid: autoUid,
+        hasTournamentProfile: true,
+      };
+      setWorkers((prev) =>
+        prev.map((w) => (w.id === profileRecord.id ? updatedProfile : w))
+      );
+      saveDocument('workers', updatedProfile).catch(console.warn);
+      try {
+        localStorage.setItem(STORAGE_KEY + '_workers', JSON.stringify(
+          workers.map((w) => (w.id === profileRecord.id ? updatedProfile : w))
+        ));
+      } catch (e) {
+        console.warn('Storage sync error:', e);
+      }
+    }
+
     // Check entry fee if > 0
     if (targetTournament.entryFeeINR > 0) {
-      const balance = currentWorker.availableBalanceINR || 0;
+      const balance = profileRecord.availableBalanceINR || 0;
       if (balance < targetTournament.entryFeeINR) {
         return {
           success: false,
@@ -3506,7 +3813,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       // Deduct entry fee
       updateWorkerBalance(
-        currentWorker.id,
+        profileRecord.id,
         -targetTournament.entryFeeINR,
         `Tournament Entry Fee: ${targetTournament.title}`
       );
@@ -3515,12 +3822,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const newParticipant: TournamentParticipant = {
       id: `tp-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       tournamentId,
-      workerId: currentWorker.id,
-      workerName: currentWorker.name,
-      workerUid: currentWorker.uniqueUserId || currentWorker.eid,
-      esportsTournamentUid: currentWorker.esportsTournamentUid,
-      inGameName: inGameName.trim() || currentWorker.inGameName || currentWorker.name,
-      inGameUid: inGameUid.trim() || currentWorker.inGameUid || '',
+      workerId: profileRecord.id,
+      workerName: profileRecord.name,
+      workerUid: profileRecord.uniqueUserId || profileRecord.eid, // Linked User ID
+      esportsTournamentUid: profileRecord.esportsTournamentUid,
+      inGameName: autoIgn, // Automatically linked from profile table
+      inGameUid: autoUid,   // Automatically linked from profile table
       registeredAt: new Date().toLocaleString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -3544,7 +3851,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTournaments((prev) => {
       const updated = prev.map((t) => {
         if (t.id === tournamentId) {
-          const newPlayerIds = [...(t.registeredPlayerIds || []), currentWorker.id];
+          const newPlayerIds = [...(t.registeredPlayerIds || []), profileRecord.id];
           return {
             ...t,
             registeredSlots: Math.min(t.maxSlots, (t.registeredSlots || 0) + 1),
@@ -3567,7 +3874,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     saveDocument('tournamentParticipants', newParticipant).catch(console.warn);
 
-    notify(`Successfully joined "${targetTournament.title}"! Good luck, Player!`);
+    notify(`Successfully joined "${targetTournament.title}"! (IGN: ${autoIgn}, UID: ${autoUid})`);
     return {
       success: true,
       message: `Registration confirmed for ${targetTournament.title}!`,
@@ -3962,6 +4269,233 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     notify(`Deposit request ${target.id} marked as Rejected.`);
   };
 
+  // ========================================================
+  // 24/7 Customer Support Query Management System Actions
+  // ========================================================
+  const createCustomerQuery = (
+    data: Omit<CustomerSupportQuery, 'id' | 'queryNumber' | 'createdAt' | 'updatedAt' | 'status' | 'messages'>
+  ): CustomerSupportQuery => {
+    const now = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const queryNum = `CS-${Math.floor(1000 + Math.random() * 9000)}`;
+    const id = `csq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+    const initialUserMessage: SupportChatMessage = {
+      id: `msg-${Date.now()}-usr`,
+      sender: 'user',
+      senderName: data.userName,
+      senderRole: 'User',
+      message: data.description,
+      timestamp: now,
+      isStaff: false,
+    };
+
+    const initialBotMessage: SupportChatMessage = {
+      id: `msg-${Date.now()}-bot`,
+      sender: 'system_bot',
+      senderName: '24/7 AI Desk',
+      senderRole: 'Automated Triaging Engine',
+      message: `24/7 Live Desk Acknowledgement: Query assigned ticket ${queryNum}. Priority: ${data.priority.toUpperCase()}. Global 24-hour SLA active (resolution guaranteed within 24 hours). Support staff on duty is reviewing your case.`,
+      timestamp: now,
+      isStaff: true,
+    };
+
+    const newQuery: CustomerSupportQuery = {
+      ...data,
+      id,
+      queryNumber: queryNum,
+      status: 'open',
+      slaDeadlineMinutes: 1440,
+      createdAt: now,
+      updatedAt: now,
+      messages: [initialUserMessage, initialBotMessage],
+    };
+
+    setCustomerQueries((prev) => {
+      const updated = [newQuery, ...prev];
+      try {
+        localStorage.setItem(STORAGE_KEY + '_customer_queries', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Storage sync error:', e);
+      }
+      return updated;
+    });
+
+    saveDocument('customerSupportQueries', newQuery).catch(console.warn);
+    notify(`Support ticket ${queryNum} submitted! 24/7 desk is actively reviewing.`);
+    return newQuery;
+  };
+
+  const addCustomerQueryMessage = (
+    queryId: string,
+    messageText: string,
+    sender: 'user' | 'support_agent',
+    senderName?: string
+  ) => {
+    const trimmed = messageText.trim();
+    if (!trimmed) return;
+    const now = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    setCustomerQueries((prev) => {
+      const updated = prev.map((q) => {
+        if (q.id !== queryId) return q;
+        const newMsg: SupportChatMessage = {
+          id: `msg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          sender,
+          senderName: senderName || (sender === 'support_agent' ? 'Support Agent' : q.userName),
+          senderRole: sender === 'support_agent' ? '24/7 Operations Staff' : 'User',
+          message: trimmed,
+          timestamp: now,
+          isStaff: sender === 'support_agent',
+        };
+        const nextStatus: SupportQueryStatus =
+          sender === 'user'
+            ? q.status === 'resolved' || q.status === 'closed'
+              ? 'open'
+              : q.status
+            : q.status === 'open'
+            ? 'in_progress'
+            : q.status;
+
+        const mod: CustomerSupportQuery = {
+          ...q,
+          status: nextStatus,
+          updatedAt: now,
+          messages: [...q.messages, newMsg],
+        };
+        saveDocument('customerSupportQueries', mod).catch(console.warn);
+        return mod;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_customer_queries', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Storage sync error:', e);
+      }
+      return updated;
+    });
+
+    notify(sender === 'support_agent' ? 'Support reply dispatched.' : 'Message sent to 24/7 support.');
+  };
+
+  const updateCustomerQueryStatus = (
+    queryId: string,
+    status: SupportQueryStatus,
+    agentName?: string,
+    internalNotes?: string
+  ) => {
+    const now = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    setCustomerQueries((prev) => {
+      const updated = prev.map((q) => {
+        if (q.id !== queryId) return q;
+        const isResolved = status === 'resolved' || status === 'closed';
+        const mod: CustomerSupportQuery = {
+          ...q,
+          status,
+          assignedAgent: agentName || q.assignedAgent,
+          internalNotes: internalNotes !== undefined ? internalNotes : q.internalNotes,
+          updatedAt: now,
+          resolvedAt: isResolved ? q.resolvedAt || now : undefined,
+          resolvedBy: isResolved ? agentName || q.resolvedBy || 'Support Staff' : undefined,
+        };
+        saveDocument('customerSupportQueries', mod).catch(console.warn);
+        return mod;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_customer_queries', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Storage sync error:', e);
+      }
+      return updated;
+    });
+
+    notify(`Ticket status updated to ${status.toUpperCase().replace('_', ' ')}.`);
+  };
+
+  const resolveCustomerQuery = (
+    queryId: string,
+    resolutionSummary: string,
+    compensationINR?: number,
+    agentName?: string
+  ) => {
+    const now = new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const target = customerQueries.find((q) => q.id === queryId);
+    if (!target) return;
+
+    const comp = compensationINR && compensationINR > 0 ? Number(compensationINR) : undefined;
+    if (comp) {
+      const targetWorker = workers.find(
+        (w) => w.id === target.userId || w.uniqueUserId === target.userId || w.eid === target.userEid
+      );
+      if (targetWorker) {
+        updateWorkerBalance(
+          targetWorker.id,
+          comp,
+          `Goodwill Credit for Ticket ${target.queryNumber}: ${resolutionSummary}`,
+          agentName || '24/7 Support Desk'
+        );
+      }
+    }
+
+    const resolutionMsg: SupportChatMessage = {
+      id: `msg-${Date.now()}-resolved`,
+      sender: 'support_agent',
+      senderName: agentName || 'Support Operations Lead',
+      senderRole: '24/7 Support Resolution',
+      message: `TICKET RESOLUTION: ${resolutionSummary}${comp ? ` (Goodwill balance credit of ₹${comp} credited to your account)` : ''}`,
+      timestamp: now,
+      isStaff: true,
+    };
+
+    setCustomerQueries((prev) => {
+      const updated = prev.map((q) => {
+        if (q.id !== queryId) return q;
+        const mod: CustomerSupportQuery = {
+          ...q,
+          status: 'resolved',
+          resolvedAt: now,
+          resolvedBy: agentName || '24/7 Support Staff',
+          compensationINR: comp,
+          updatedAt: now,
+          messages: [...q.messages, resolutionMsg],
+        };
+        saveDocument('customerSupportQueries', mod).catch(console.warn);
+        return mod;
+      });
+      try {
+        localStorage.setItem(STORAGE_KEY + '_customer_queries', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('Storage sync error:', e);
+      }
+      return updated;
+    });
+
+    notify(`Ticket ${target.queryNumber} resolved successfully!`);
+  };
+
   const resetToDefaultData = () => {
     setTasks(INITIAL_TASKS);
     setSubmissions(INITIAL_SUBMISSIONS);
@@ -3978,6 +4512,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setMatchResults(INITIAL_MATCH_RESULTS);
     setSupportTickets(INITIAL_SUPPORT_TICKETS);
     setDepositRequests(INITIAL_DEPOSIT_REQUESTS);
+    setCustomerQueries(INITIAL_CUSTOMER_QUERIES);
     notify(`Demo data refreshed to default state.`);
   };
 
@@ -4078,6 +4613,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         createSupportTicket,
         updateSupportTicket,
         resolveSupportTicket,
+        customerQueries,
+        createCustomerQuery,
+        addCustomerQueryMessage,
+        updateCustomerQueryStatus,
+        resolveCustomerQuery,
+        verifySupportPin,
+        isSupportPanelOpen,
+        setIsSupportPanelOpen,
+        supportPinModalOpen,
+        setSupportPinModalOpen,
+        userSupportModalOpen,
+        setUserSupportModalOpen,
         roleSecurityPins,
         updateRolePin,
         resetRolePins,

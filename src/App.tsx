@@ -5,14 +5,17 @@ import { AdminPanel } from './components/admin/AdminPanel';
 import { PartnerPanel } from './components/partner/PartnerPanel';
 import { WorkerDashboard } from './components/worker/WorkerDashboard';
 import { PinModal } from './components/PinModal';
+import { SupportPinModal } from './components/support/SupportPinModal';
+import { SupportPanel } from './components/support/SupportPanel';
+import { UserSupportModal } from './components/support/UserSupportModal';
 import { GoogleSignInModal } from './components/GoogleSignInModal';
 import { LoginPage } from './components/LoginPage';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { AppSidebar } from './components/AppSidebar';
-import { Wrench, Shield, Zap } from 'lucide-react';
+import { Wrench, Shield, Zap, Headphones } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { currentRole, requestRoleChange, settings, isAuthenticated } = useApp();
+  const { currentRole, requestRoleChange, settings, isAuthenticated, setUserSupportModalOpen, isSupportPanelOpen } = useApp();
 
   // 1. Require successful login before accessing the main app
   if (!isAuthenticated && currentRole !== 'admin') {
@@ -24,6 +27,9 @@ const AppContent: React.FC = () => {
       <Header />
       <AppSidebar />
       <PinModal />
+      <SupportPinModal />
+      {isSupportPanelOpen && <SupportPanel />}
+      <UserSupportModal />
       <GoogleSignInModal />
 
       {/* Maintenance Mode Screen for non-admins if active */}
@@ -52,6 +58,7 @@ const AppContent: React.FC = () => {
           {currentRole === 'worker' && <WorkerDashboard />}
         </main>
       )}
+
 
       {/* App-like Mobile Bottom Navigation Bar */}
       <MobileBottomNav />

@@ -67,34 +67,34 @@ export const LoginPage: React.FC = () => {
       <PinModal />
 
       {/* Top Simple Bar */}
-      <header className="border-b border-white/[0.08] bg-[#090d16]/80 backdrop-blur-xl px-6 py-4">
+      <header className="border-b border-white/[0.08] bg-[#090d16]/80 backdrop-blur-xl px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs tracking-tight shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs tracking-tight shadow-[0_0_20px_rgba(6,182,212,0.35)] border border-cyan-400/30 shrink-0">
               TEA
             </div>
-            <div>
-              <span className="font-extrabold text-base tracking-tight text-white">Task and Esports <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Arena</span></span>
-              <span className="ml-2 text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+            <div className="truncate">
+              <span className="font-extrabold text-sm sm:text-base tracking-tight text-white">Task &amp; Esports <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">Arena</span></span>
+              <span className="ml-1.5 sm:ml-2 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
                 Portal
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <div className="flex items-center gap-2 text-xs text-zinc-400 shrink-0">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="hidden sm:inline">Protected Authentication • Persistent Session</span>
           </div>
         </div>
       </header>
 
       {/* Main Login Card Area */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 my-auto">
-        <div className="max-w-md w-full bg-[#111726] text-zinc-100 rounded-3xl shadow-2xl shadow-black/80 border border-white/[0.08] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <main className="flex-1 flex items-center justify-center p-3 sm:p-6 my-auto">
+        <div className="max-w-md w-full bg-[#111726] text-zinc-100 rounded-2xl sm:rounded-3xl shadow-2xl shadow-black/80 border border-white/[0.08] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           {/* Card Header with Prominent Welcome User Text */}
-          <div className="bg-gradient-to-b from-white/[0.04] to-transparent p-6 sm:p-8 text-center border-b border-white/[0.06]">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mx-auto mb-4 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
-              <UserCheck className="w-7 h-7" />
+          <div className="bg-gradient-to-b from-white/[0.04] to-transparent p-5 sm:p-8 text-center border-b border-white/[0.06]">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
+              <UserCheck className="w-6 h-6 sm:w-7 sm:h-7" />
             </div>
 
             {/* Prominent 'Welcome User' Header with hidden 5-tap/8-tap access */}
